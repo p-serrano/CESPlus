@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<meta name="theme-color" content="#604333">
+<meta name="description" content="Gestión económica de la peña Café en Sal">
+
+<title>CESPlus | Café en Sal</title>
+
+<link rel="stylesheet" href="styles/styles.css">
+<script src="js/app.js" defer></script>
+
+
+</head>
+
+<body>
+    <div class="app-shell">
+
+
+    <!-- SIDEBAR: escritorio -->
+    <aside class="sidebar">
+        <a class="brand" href="#" data-view="inicio">
+            <span class="brand-icon">C+</span>
+            <span class="brand-copy">
+                <strong>CESPlus</strong>
+                <small>Café en Sal</small>
+            </span>
+        </a>
+
+        <div class="sidebar-section-label">GESTIÓN</div>
+
+        <nav class="sidebar-nav" aria-label="Navegación principal">
+            <button class="nav-item active" data-view="inicio">
+                <span class="nav-icon">⌂</span>
+                <span>Inicio</span>
+            </button>
+
+            <button class="nav-item" data-view="familias">
+                <span class="nav-icon">♧</span>
+                <span>Familias</span>
+            </button>
+
+            <button class="nav-item" data-view="economia">
+                <span class="nav-icon">€</span>
+                <span>Economía</span>
+            </button>
+
+            <button class="nav-item" data-view="administracion">
+                <span class="nav-icon">⚙</span>
+                <span>Administración</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="connection-dot"></span>
+            <span>Modo de prueba</span>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">CAFÉ EN SAL</p>
+                <h1 id="page-title">Control de cuotas</h1>
+            </div>
+
+            <div class="topbar-period">
+                <span class="period-label">PERIODO</span>
+                <select id="period-select" aria-label="Mes de las cuotas">
+                </select>
+            </div>
+        </header>
+
+        <!-- INICIO -->
+        <section class="view active" id="view-inicio">
+
+            <div class="welcome-row">
+                <div>
+                    <h2>Estado de las cuentas.</h2>
+                </div>
+
+                <span class="demo-badge">DATOS DE PRUEBA</span>
+            </div>
+
+            <!-- INDICADORES -->
+            <div class="summary-grid">
+
+                <article class="summary-card balance-card">
+                    <span class="summary-label">Saldo actual</span>
+                    <strong class="summary-value" id="balance-value">
+                        1.250,00 €
+                    </strong>
+                    <span class="summary-footnote">
+                        Saldo inicial + ingresos - gastos
+                    </span>
+                </article>
+
+                <article class="summary-card">
+                    <span class="summary-label">Ingresos del mes</span>
+                    <strong class="summary-value" id="income-value">
+                        0,00 €
+                    </strong>
+                    <span class="summary-footnote">Ingresos registrados</span>
+                </article>
+
+                <article class="summary-card">
+                    <span class="summary-label">Gastos del mes</span>
+                    <strong class="summary-value" id="expenses-value">
+                        0,00 €
+                    </strong>
+                    <span class="summary-footnote">Salidas de dinero</span>
+                </article>
+
+                <article class="summary-card pending-summary">
+                    <span class="summary-label">Ingresos pendientes</span>
+                    <strong class="summary-value" id="pending-value">
+                        200,00 €
+                    </strong>
+                    <span class="summary-footnote" id="pending-count">
+                        3 familias pendientes
+                    </span>
+                </article>
+
+            </div>
+
+            <!-- CUOTAS -->
+            <section class="content-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Cuotas de la peña</h2>
+                        <p id="dues-description">
+                            Consulta y registra las cuotas de cada familia.
+                        </p>
+                    </div>
+
+                    <button class="button button-secondary"
+                            id="show-all-dues">
+                        Ver todas
+                    </button>
+                </div>
+
+                <div class="filter-row">
+                    <button class="filter-chip active"
+                            data-filter="todas">
+                        Todas
+                    </button>
+
+                    <button class="filter-chip"
+                            data-filter="pendiente">
+                        Pendientes
+                    </button>
+
+                    <button class="filter-chip"
+                            data-filter="pagado">
+                        Abonadas
+                    </button>
+                </div>
+
+                <div class="dues-list" id="dues-list">
+                    <!-- Se genera desde app.js -->
+                </div>
+
+                <div class="empty-state hidden" id="dues-empty">
+                    <span class="empty-icon">✓</span>
+                    <h3>Todo al día</h3>
+                    <p>No hay cuotas que coincidan con este filtro.</p>
+                </div>
+
+            </section>
+
+            <!-- ACCIONES RÁPIDAS -->
+            <section class="content-section quick-actions-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Accesos rápidos</h2>
+                        <p>Las tareas que más utilizas.</p>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+
+                    <button class="quick-action" data-action="familia">
+                        <span class="quick-action-icon">+</span>
+                        <span>
+                            <strong>Nueva familia</strong>
+                            <small>Añadir miembros</small>
+                        </span>
+                        <span class="quick-arrow">›</span>
+                    </button>
+
+                    <button class="quick-action" data-action="gasto">
+                        <span class="quick-action-icon">€</span>
+                        <span>
+                            <strong>Registrar gasto</strong>
+                            <small>Anotar una salida de dinero</small>
+                        </span>
+                        <span class="quick-arrow">›</span>
+                    </button>
+
+                </div>
+            </section>
+
+        </section>
+
+        <!-- FAMILIAS -->
+        <section class="view" id="view-familias">
+            <div class="section-heading">
+                <div>
+                    <h2>Gestión de las familias de la peña.</h2>
+                </div>
+
+                <button class="button button-primary"
+                        data-action="familia">
+                    + Nueva familia
+                </button>
+            </div>
+
+            <div id="families-content"></div>
+        </section>
+
+        <!-- ECONOMÍA -->
+        <section class="view" id="view-economia">
+            <div class="section-heading">
+                <div>
+                    <h2>Ingresos, gastos y movimientos.</h2>
+                </div>
+
+                <button class="button button-primary"
+                        data-action="gasto">
+                    + Registrar gasto
+                </button>
+            </div>
+
+            <div id="economy-content"></div>
+        </section>
+
+        <!-- ADMINISTRACIÓN -->
+        <section class="view" id="view-administracion">
+            <div class="section-heading">
+                <div>
+                    <h2>Herramientas de gestión de la peña.</h2>
+                </div>
+            </div>
+
+            <div id="administration-content"></div>
+        </section>
+
+    </main>
+
+    <!-- NAVEGACIÓN INFERIOR: móvil -->
+    <nav class="bottom-nav" aria-label="Navegación móvil">
+
+        <button class="bottom-nav-item active" data-view="inicio">
+            <span class="bottom-nav-icon">⌂</span>
+            <span>Inicio</span>
+        </button>
+
+        <button class="bottom-nav-item" data-view="familias">
+            <span class="bottom-nav-icon">♧</span>
+            <span>Familias</span>
+        </button>
+
+        <button class="bottom-nav-item" data-view="economia">
+            <span class="bottom-nav-icon">€</span>
+            <span>Economía</span>
+        </button>
+
+        <button class="bottom-nav-item" data-view="administracion">
+            <span class="bottom-nav-icon">⚙</span>
+            <span>Más</span>
+        </button>
+
+    </nav>
+
+</div>
+
+<!-- MODALES -->
+<div id="modal-root"></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+</body>
+</html>
