@@ -1720,7 +1720,13 @@ const CESPlus = (() => {
 
         feeInput.value = (feeCents / 100).toFixed(2);
 
-        updateFamilyEditTotal();
+        const form = select.closest("form");
+
+        if (form?.id === "new-family-form") {
+            updateNewFamilyTotal();
+        } else {
+            updateFamilyEditTotal();
+        }
     }
 
     function saveManageFamilyForm(form) {
@@ -3332,24 +3338,6 @@ const CESPlus = (() => {
             updateFamilyEditTotal();
         }
 
-        if (event.target.matches('[name="memberType"]')) {
-            const row = event.target.closest(".member-row");
-
-            if (row) {
-                const feeInput = row.querySelector('[name="memberFee"]');
-                const isChild = event.target.value === "child";
-
-                const feeCents = isChild
-                    ? data.settings.childFeeCents
-                    : data.settings.adultFeeCents;
-
-                feeInput.value = (feeCents / 100).toFixed(2);
-
-                updateMemberTotal();
-            }
-
-            return;
-        }
     }
 
     function handleInput(event) {
