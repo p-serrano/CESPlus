@@ -2329,3 +2329,1065 @@ h3 {
         width: 100%;
     }
 }
+
+
+/* =====================================================
+   CESPLUS — AUTENTICACIÓN
+   ===================================================== */
+
+/* PANTALLA GENERAL */
+
+.auth-screen {
+    display: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    padding: 30px 20px;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(142, 106, 76, 0.10),
+            transparent 35%
+        ),
+        var(--background);
+}
+
+body.auth-required .auth-screen {
+    display: flex;
+}
+
+body.auth-required .app-shell {
+    display: none;
+}
+
+
+/* OCULTAR ELEMENTOS CON HIDDEN */
+
+#auth-screen [hidden] {
+    display: none !important;
+}
+
+#auth-screen .auth-message:empty {
+    display: none !important;
+}
+
+
+/* TARJETA */
+
+.auth-card {
+    width: 100%;
+    max-width: 430px;
+
+    padding: 38px 34px 26px;
+
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    background: var(--surface);
+
+    box-shadow: var(--shadow-md);
+}
+
+
+/* MARCA */
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    margin-bottom: 42px;
+}
+
+.auth-brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+
+    border-radius: 15px;
+
+    background: var(--primary);
+    color: #fff;
+
+    font-size: 20px;
+    font-weight: 850;
+    letter-spacing: -1px;
+}
+
+.auth-brand > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.auth-brand strong {
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 850;
+    letter-spacing: -0.6px;
+}
+
+.auth-brand small {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+
+/* ENCABEZADOS */
+
+.auth-heading {
+    margin-bottom: 28px;
+}
+
+.auth-heading h1 {
+    margin: 0 0 8px;
+
+    color: var(--text);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+}
+
+.auth-heading p {
+    margin: 0;
+
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* FORMULARIOS */
+
+.auth-screen .form-group {
+    margin-bottom: 19px;
+}
+
+.auth-screen .form-group label {
+    display: block;
+    margin-bottom: 8px;
+
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.auth-screen .form-group input {
+    width: 100%;
+    min-height: 47px;
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--background);
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.auth-screen .form-group input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.auth-screen .form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 3px rgba(142, 106, 76, 0.13);
+
+    background: var(--surface);
+}
+
+
+/* BOTÓN PRINCIPAL */
+
+.auth-submit {
+    width: 100%;
+    min-height: 49px;
+
+    margin-top: 9px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 750;
+}
+
+
+/* MENSAJES */
+
+.auth-message {
+    padding: 12px 14px;
+    margin: 12px 0;
+
+    border-radius: 9px;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.auth-error {
+    border: 1px solid rgba(190, 65, 65, 0.15);
+
+    background: var(--red-bg);
+    color: var(--red);
+}
+
+.auth-info {
+    border: 1px solid rgba(65, 140, 90, 0.15);
+
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+
+/* ENLACES ENTRE PANTALLAS */
+
+.auth-switch {
+    margin: 25px 0 0;
+
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+.auth-text-button {
+    padding: 4px 3px;
+
+    border: none;
+    background: transparent;
+
+    color: var(--primary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 750;
+
+    cursor: pointer;
+}
+
+.auth-text-button:hover {
+    text-decoration: underline;
+}
+
+
+/* PANTALLA DE VINCULACIÓN */
+
+#family-link-view .auth-heading {
+    margin-bottom: 25px;
+}
+
+#family-link-view > .auth-text-button {
+    display: block;
+    margin: 18px auto 0;
+}
+
+
+/* PIE */
+
+.auth-footer {
+    margin: 34px 0 0;
+    padding-top: 19px;
+
+    border-top: 1px solid var(--border);
+
+    color: var(--text-muted);
+    font-size: 10px;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 480px) {
+
+    .auth-screen {
+        padding: 18px 14px;
+        align-items: center;
+    }
+
+    .auth-card {
+        padding: 30px 23px 23px;
+        border-radius: 17px;
+    }
+
+    .auth-brand {
+        margin-bottom: 34px;
+    }
+
+    .auth-heading h1 {
+        font-size: 25px;
+    }
+}
+
+/* =====================================================
+   SOLICITUDES DE VINCULACIÓN FAMILIAR
+   ===================================================== */
+
+#family-link-requests-section {
+    margin-bottom: 28px;
+}
+
+#family-link-requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.family-link-request {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 20px;
+    background: #faf8f5;
+    border: 1px solid #e8e0d7;
+    border-radius: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.family-link-request:hover {
+    border-color: #b89b80;
+    box-shadow: 0 3px 12px rgba(75, 52, 35, 0.06);
+}
+
+/* Información de la solicitud */
+
+.family-link-request-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.family-link-request-info strong {
+    color: #493729;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.family-link-request-info span {
+    color: #75685e;
+    font-size: 0.9rem;
+}
+
+.family-link-request-info small {
+    color: #a09285;
+    font-size: 0.78rem;
+}
+
+/* Botones */
+
+.family-link-request-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+}
+
+.family-link-request-actions button {
+    min-width: 95px;
+}
+
+/* Estado vacío */
+
+#family-link-requests-list .empty-state {
+    padding: 24px;
+    margin: 0;
+    text-align: center;
+    color: #8b7d71;
+    background: #faf8f5;
+    border: 1px dashed #ded3c8;
+    border-radius: 12px;
+}
+
+/* Adaptación móvil */
+
+@media (max-width: 600px) {
+
+    .family-link-request {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 15px;
+        padding: 16px;
+    }
+
+    .family-link-request-actions {
+        width: 100%;
+    }
+
+    .family-link-request-actions button {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+/* Contador de solicitudes */
+
+.admin-title-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pending-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 23px;
+    height: 23px;
+    padding: 0 7px;
+    border-radius: 20px;
+    background: #8b5e3c;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.pending-count[hidden] {
+    display: none;
+}
+
+/* Nombre y estado */
+
+.family-link-request-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.request-status-badge {
+    padding: 4px 9px;
+    border-radius: 20px;
+    background: #f2e7d8;
+    color: #805b38;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Ocultar elementos restringidos por permisos */
+[hidden] {
+    display: none !important;
+}
+
+/* =====================================================
+   CÓDIGO DE ACCESO FAMILIAR
+   ===================================================== */
+
+.family-access-section {
+    margin: 24px 0;
+    padding: 20px;
+    background: #f8f5f1;
+    border: 1px solid #e8dfd5;
+    border-radius: 12px;
+}
+
+.family-access-section .section-heading {
+    margin-bottom: 16px;
+}
+
+.family-access-section .section-heading h3 {
+    margin: 0 0 6px;
+    color: #553c2e;
+    font-size: 1rem;
+}
+
+.family-access-section .section-heading p {
+    margin: 0;
+    color: #76685e;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.family-access-code-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.family-access-code-result {
+    margin-top: 16px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #ded2c6;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.family-access-code-value {
+    display: block;
+    color: #553c2e;
+    font-family: monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    overflow-wrap: anywhere;
+}
+
+.family-access-code-result .form-help {
+    margin: 10px 0 0;
+    color: #76685e;
+    font-size: 0.8rem;
+}
+
+.family-access-code-actions button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.family-access-copy-button {
+    margin-top: 14px;
+    min-width: 150px;
+}
+
+.family-access-copy-button:hover {
+    transform: translateY(-1px);
+}
+
+.family-access-copy-button:active {
+    transform: translateY(0);
+}
+
+/* Adaptación a móviles */
+
+@media (max-width: 600px) {
+    .family-access-section {
+        padding: 15px;
+        margin: 18px 0;
+    }
+
+    .family-access-code-value {
+        font-size: 1.3rem;
+    }
+
+    .family-access-code-actions button {
+        width: 100%;
+    }
+}
+
+
+/* =====================================================
+   CESPLUS — CABECERA Y USUARIO
+   ===================================================== */
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info .avatar {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--primary);
+    color: white;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.user-details strong {
+    font-size: 12px;
+    color: var(--text);
+}
+
+.user-details span {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.logout-button {
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .topbar-actions {
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .user-details {
+        display: none;
+    }
+
+    .logout-button {
+        padding: 9px 11px;
+    }
+}
+
+.button-danger {
+    background-color: #b94036;
+    color: #ffffff;
+    border: 1px solid #b94036;
+}
+
+.button-danger:hover {
+    background-color: #963129;
+    border-color: #963129;
+}
+
+/* =====================================================
+   FAMILIAS INACTIVAS
+   ===================================================== */
+
+.inactive-families-section {
+    margin-top: 28px;
+    border: 1px solid #e7dfd6;
+    border-radius: 12px;
+    background: #faf8f5;
+    overflow: hidden;
+}
+
+.inactive-families-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    cursor: pointer;
+    list-style: none;
+    transition: background-color 0.2s ease;
+}
+
+.inactive-families-header::-webkit-details-marker {
+    display: none;
+}
+
+.inactive-families-header:hover {
+    background: #f3eee8;
+}
+
+.inactive-families-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.inactive-families-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #eee7df;
+    color: #806b58;
+    font-size: 22px;
+}
+
+.inactive-families-heading div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.inactive-families-heading strong {
+    color: #594536;
+    font-size: 14px;
+}
+
+.inactive-families-heading small {
+    color: #94877b;
+    font-size: 12px;
+}
+
+.inactive-families-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.inactive-families-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 25px;
+    height: 25px;
+    padding: 0 7px;
+    border-radius: 20px;
+    background: #eee7df;
+    color: #806b58;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.inactive-families-arrow {
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid #8c7b6c;
+    border-bottom: 2px solid #8c7b6c;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+    margin-top: -4px;
+}
+
+.inactive-families-section[open] .inactive-families-arrow {
+    transform: rotate(225deg);
+    margin-top: 5px;
+}
+
+.inactive-families-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 16px 16px;
+}
+
+.inactive-family-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid #eee8e1;
+    border-radius: 9px;
+    background: #ffffff;
+}
+
+.inactive-family-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.inactive-family-info strong {
+    color: #6e6258;
+    font-size: 14px;
+}
+
+.inactive-family-info span {
+    color: #a49a90;
+    font-size: 12px;
+}
+
+.inactive-family-card .button {
+    flex-shrink: 0;
+}
+
+/* =====================================================
+   CESPLUS — DASHBOARD DE MIEMBROS
+   ===================================================== */
+
+/* Contenedor principal */
+
+#member-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+#member-dashboard[hidden] {
+    display: none;
+}
+
+
+/* =====================================================
+   BLOQUES DE CONTENIDO
+   ===================================================== */
+
+#member-dashboard .content-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(60, 40, 25, 0.04);
+}
+
+#member-dashboard .content-card h2 {
+    color: var(--primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 18px;
+}
+
+#member-dashboard .content-card h3 {
+    color: var(--text);
+    font-size: 0.95rem;
+    margin: 0 0 12px;
+}
+
+
+/* =====================================================
+   TARJETA DE CUOTA
+   ===================================================== */
+
+.member-due-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--primary);
+    border-radius: 12px;
+
+    padding: 20px;
+    margin-bottom: 12px;
+}
+
+.member-entry-main {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.member-entry-main strong {
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.member-entry-date {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.member-entry-side {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.member-entry-amount {
+    color: var(--primary);
+    font-size: 1.15rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   ESTADOS DE LAS CUOTAS
+   ===================================================== */
+
+.member-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 11px;
+    border-radius: 20px;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.member-status-badge.paid {
+    background: #e7f3e9;
+    color: #287443;
+}
+
+.member-status-badge.pending {
+    background: #fff1dc;
+    color: #a66516;
+}
+
+
+/* =====================================================
+   TARJETAS DE GASTOS
+   ===================================================== */
+
+.member-expense-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    padding: 15px 17px;
+    margin-bottom: 10px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.member-expense-card:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.member-expense-card .member-entry-main strong {
+    font-size: 0.95rem;
+}
+
+.member-expense-card .member-entry-amount {
+    font-size: 1rem;
+}
+
+
+/* =====================================================
+   HISTORIALES
+   ===================================================== */
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.member-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 13px 15px;
+
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.member-history-item .member-entry-main {
+    gap: 4px;
+}
+
+.member-history-item .member-entry-main strong {
+    font-size: 0.9rem;
+}
+
+.member-history-item .member-entry-amount {
+    font-size: 0.95rem;
+}
+
+
+/* =====================================================
+   MENSAJES SIN DATOS
+   ===================================================== */
+
+.member-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 85px;
+    padding: 20px;
+
+    color: var(--text-muted);
+    background: var(--background);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+
+/* =====================================================
+   RESPONSIVE — TABLET
+   ===================================================== */
+
+@media (max-width: 760px) {
+
+    #member-dashboard {
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    #member-dashboard .content-card {
+        padding: 17px;
+    }
+
+    .member-due-card {
+        padding: 16px;
+    }
+
+    .member-entry-side {
+        gap: 9px;
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE — MÓVIL
+   ===================================================== */
+
+@media (max-width: 420px) {
+
+    .member-due-card {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 13px;
+    }
+
+    .member-entry-side {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .member-expense-card,
+    .member-history-item {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .member-expense-card .member-entry-side,
+    .member-history-item .member-entry-side {
+        width: auto;
+        align-items: flex-end;
+        flex-direction: column;
+    }
+
+    .member-entry-amount {
+        font-size: 1rem;
+    }
+
+    .member-status-badge {
+        padding: 5px 9px;
+        font-size: 0.7rem;
+    }
+
+}

@@ -12,12 +12,211 @@
 <title>CESPlus | Café en Sal</title>
 
 <link rel="stylesheet" href="styles/styles.css">
-<script src="js/app.js" defer></script>
+<script type="module" src="js/app.js"></script>
 
 
 </head>
 
-<body>
+<body class="auth-required">
+
+    <!-- PANTALLA DE ACCESO -->
+    <section id="auth-screen" class="auth-screen">
+        <div class="auth-card">
+
+            <!-- MARCA -->
+            <div class="auth-brand">
+                <span class="auth-brand-icon">C+</span>
+                <div>
+                    <strong>CESPlus</strong>
+                    <small>Café en Sal</small>
+                </div>
+            </div>
+
+            <!-- 1. INICIAR SESIÓN -->
+            <div id="login-view" class="auth-view">
+                <div class="auth-heading">
+                    <h1>Bienvenido</h1>
+                    <p>Accede a la gestión de la peña.</p>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Correo electrónico</label>
+                        <input
+                            type="email"
+                            id="login-email"
+                            name="email"
+                            autocomplete="username"
+                            placeholder="tu@email.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Contraseña</label>
+                        <input
+                            type="password"
+                            id="login-password"
+                            name="password"
+                            autocomplete="current-password"
+                            placeholder="Tu contraseña"
+                            required
+                        >
+                    </div>
+
+                    <p id="login-error" class="auth-message auth-error" role="alert" hidden></p>
+                    <p id="login-info" class="auth-message auth-info" role="status" hidden></p>
+
+                    <button type="submit" id="login-button" class="button button-primary auth-submit">
+                        Iniciar sesión
+                    </button>
+                </form>
+
+                <p class="auth-switch">
+                    ¿Todavía no tienes cuenta?
+                    <button type="button" id="show-register-button" class="auth-text-button">
+                        Crear cuenta
+                    </button>
+                </p>
+            </div>
+
+            <!-- 2. CREAR CUENTA -->
+            <div id="register-view" class="auth-view" hidden>
+                <div class="auth-heading">
+                    <h1>Crear cuenta</h1>
+                    <p>Regístrate para acceder a CESPlus.</p>
+                </div>
+
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-name">Nombre y apellidos</label>
+                        <input
+                            type="text"
+                            id="register-name"
+                            name="display_name"
+                            autocomplete="name"
+                            placeholder="Tu nombre"
+                            maxlength="80"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-email">Correo electrónico</label>
+                        <input
+                            type="email"
+                            id="register-email"
+                            name="email"
+                            autocomplete="email"
+                            placeholder="tu@email.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-password">Contraseña</label>
+                        <input
+                            type="password"
+                            id="register-password"
+                            name="password"
+                            autocomplete="new-password"
+                            placeholder="Mínimo 8 caracteres"
+                            minlength="8"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-password-confirm">Repetir contraseña</label>
+                        <input
+                            type="password"
+                            id="register-password-confirm"
+                            name="password_confirm"
+                            autocomplete="new-password"
+                            placeholder="Repite tu contraseña"
+                            minlength="8"
+                            required
+                        >
+                    </div>
+
+                    <p id="register-error" class="auth-message auth-error" role="alert" hidden></p>
+                    <p id="register-info" class="auth-message auth-info" role="status" hidden></p>
+
+                    <button type="submit" id="register-button" class="button button-primary auth-submit">
+                        Crear cuenta
+                    </button>
+                </form>
+
+                <p class="auth-switch">
+                    ¿Ya tienes cuenta?
+                    <button type="button" id="show-login-button" class="auth-text-button">
+                        Iniciar sesión
+                    </button>
+                </p>
+            </div>
+
+            <!-- 3. CONFIRMAR CORREO -->
+            <div id="confirmation-view" class="auth-view" hidden>
+                <div class="auth-heading">
+                    <h1>Confirma tu correo</h1>
+                    <p>Te hemos enviado un mensaje para verificar tu dirección de correo electrónico.</p>
+                </div>
+
+                <p class="auth-message auth-info">
+                    Abre el correo que has recibido y pulsa el enlace de confirmación. Después podrás iniciar sesión y vincular tu familia.
+                </p>
+
+                <button type="button" id="confirmation-login-button" class="button button-primary auth-submit">
+                    Volver al inicio de sesión
+                </button>
+            </div>
+
+            <!-- 4. VINCULAR FAMILIA -->
+            <div id="link-family-view" class="auth-view" hidden>
+                <div class="auth-heading">
+                    <h1>Vincular familia</h1>
+                    <p>Introduce el código de acceso que te ha facilitado la administración de la peña.</p>
+                </div>
+
+                <form id="family-link-form">
+                    <div class="form-group">
+                        <label for="family-code">Código de familia</label>
+                        <input
+                            type="text"
+                            id="family-code"
+                            name="family_code"
+                            autocomplete="off"
+                            placeholder="Introduce tu código"
+                            maxlength="32"
+                            required
+                        >
+                    </div>
+
+                    <p id="family-link-error" class="auth-message auth-error" role="alert" hidden></p>
+                    <p id="family-link-info" class="auth-message auth-info" role="status" hidden></p>
+
+                    <button type="submit" id="family-link-button" class="button button-primary auth-submit">
+                        Enviar solicitud
+                    </button>
+                </form>
+
+                <div id="family-link-pending" class="auth-message auth-info" hidden>
+                    Tu solicitud está pendiente de aprobación por parte de la administración.
+                </div>
+
+                <button type="button" id="check-link-status-button" class="button button-secondary auth-submit" hidden>
+                    Comprobar estado
+                </button>
+
+                <button type="button" id="auth-logout-button" class="auth-text-button">
+                    Cerrar sesión
+                </button>
+            </div>
+
+            <p class="auth-footer">Café en Sal · Gestión de la peña</p>
+        </div>
+    </section>
+
     <div class="app-shell">
 
 
@@ -39,17 +238,17 @@
                 <span>Inicio</span>
             </button>
 
-            <button class="nav-item" data-view="familias">
+            <button class="nav-item" data-view="familias" data-role="admin,treasurer">
                 <span class="nav-icon">♧</span>
                 <span>Familias</span>
             </button>
 
-            <button class="nav-item" data-view="economia">
+            <button class="nav-item" data-view="economia" data-role="admin,treasurer">
                 <span class="nav-icon">€</span>
                 <span>Economía</span>
             </button>
 
-            <button class="nav-item" data-view="administracion">
+            <button class="nav-item" data-view="administracion" data-role="admin">
                 <span class="nav-icon">⚙</span>
                 <span>Administración</span>
             </button>
@@ -70,25 +269,50 @@
                 <h1 id="page-title">Control de cuotas</h1>
             </div>
 
-            <div class="topbar-period">
-                <span class="period-label">PERIODO</span>
-                <select id="period-select" aria-label="Mes de las cuotas">
-                </select>
+            <div class="topbar-actions">
+
+                <div class="topbar-period">
+                    <span class="period-label">PERIODO</span>
+                    <select id="period-select" aria-label="Mes de las cuotas">
+                    </select>
+                </div>
+
+                <div class="user-info">
+                    <div class="avatar">C+</div>
+
+                    <div class="user-details">
+                        <strong>Usuario</strong>
+                        <span>Rol</span>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    id="logout-button"
+                    class="button button-secondary logout-button"
+                    title="Cerrar sesión"
+                >
+                    Cerrar sesión
+                </button>
+
             </div>
         </header>
 
         <!-- INICIO -->
         <section class="view active" id="view-inicio">
 
+            <!-- BIENVENIDA -->
             <div class="welcome-row">
                 <div>
                     <h2>Estado de las cuentas.</h2>
                 </div>
 
-                <span class="demo-badge">DATOS DE PRUEBA</span>
+                <span class="demo-badge" data-role="admin,treasurer">
+                    DATOS DE PRUEBA
+                </span>
             </div>
 
-            <!-- INDICADORES -->
+            <!-- INDICADORES GLOBALES -->
             <div class="summary-grid">
 
                 <article class="summary-card balance-card">
@@ -129,83 +353,174 @@
 
             </div>
 
-            <!-- CUOTAS -->
-            <section class="content-section">
 
-                <div class="section-heading">
-                    <div>
-                        <h2>Cuotas de la peña</h2>
-                        <p id="dues-description">
-                            Consulta y registra las cuotas de cada familia.
-                        </p>
-                    </div>
+            <!-- =========================================
+                DASHBOARD DE ADMINISTRACIÓN Y TESORERÍA
+                ========================================= -->
 
-                    <button class="button button-secondary"
+            <div id="staff-dashboard" data-role="admin,treasurer">
+
+                <!-- CUOTAS DE TODAS LAS FAMILIAS -->
+                <section class="content-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <h2>Cuotas de la peña</h2>
+                            <p id="dues-description">
+                                Consulta y registra las cuotas de cada familia.
+                            </p>
+                        </div>
+
+                        <button
+                            class="button button-secondary"
                             id="show-all-dues">
-                        Ver todas
-                    </button>
-                </div>
-
-                <div class="filter-row">
-                    <button class="filter-chip active"
-                            data-filter="todas">
-                        Todas
-                    </button>
-
-                    <button class="filter-chip"
-                            data-filter="pendiente">
-                        Pendientes
-                    </button>
-
-                    <button class="filter-chip"
-                            data-filter="pagado">
-                        Abonadas
-                    </button>
-                </div>
-
-                <div class="dues-list" id="dues-list">
-                    <!-- Se genera desde app.js -->
-                </div>
-
-                <div class="empty-state hidden" id="dues-empty">
-                    <span class="empty-icon">✓</span>
-                    <h3>Todo al día</h3>
-                    <p>No hay cuotas que coincidan con este filtro.</p>
-                </div>
-
-            </section>
-
-            <!-- ACCIONES RÁPIDAS -->
-            <section class="content-section quick-actions-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Accesos rápidos</h2>
-                        <p>Las tareas que más utilizas.</p>
+                            Ver todas
+                        </button>
                     </div>
-                </div>
 
-                <div class="quick-actions">
+                    <div class="filter-row">
+                        <button class="filter-chip active" data-filter="todas">
+                            Todas
+                        </button>
 
-                    <button class="quick-action" data-action="familia">
-                        <span class="quick-action-icon">+</span>
-                        <span>
-                            <strong>Nueva familia</strong>
-                            <small>Añadir miembros</small>
-                        </span>
-                        <span class="quick-arrow">›</span>
-                    </button>
+                        <button class="filter-chip" data-filter="pendiente">
+                            Pendientes
+                        </button>
 
-                    <button class="quick-action" data-action="gasto">
-                        <span class="quick-action-icon">€</span>
-                        <span>
-                            <strong>Registrar gasto</strong>
-                            <small>Anotar una salida de dinero</small>
-                        </span>
-                        <span class="quick-arrow">›</span>
-                    </button>
+                        <button class="filter-chip" data-filter="pagado">
+                            Abonadas
+                        </button>
+                    </div>
 
-                </div>
-            </section>
+                    <div class="dues-list" id="dues-list">
+                        <!-- Se genera desde dashboard.js -->
+                    </div>
+
+                    <div class="empty-state hidden" id="dues-empty">
+                        <span class="empty-icon">✓</span>
+                        <h3>Todo al día</h3>
+                        <p>No hay cuotas que coincidan con este filtro.</p>
+                    </div>
+
+                </section>
+
+                <!-- ACCIONES RÁPIDAS -->
+                <section class="content-section quick-actions-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <h2>Accesos rápidos</h2>
+                            <p>Las tareas que más utilizas.</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <button
+                            class="quick-action"
+                            data-action="familia"
+                            data-role="admin,treasurer">
+
+                            <span class="quick-action-icon">+</span>
+
+                            <span>
+                                <strong>Nueva familia</strong>
+                                <small>Añadir miembros</small>
+                            </span>
+
+                            <span class="quick-arrow">›</span>
+                        </button>
+
+                        <button
+                            class="quick-action"
+                            data-action="gasto"
+                            data-role="admin,treasurer">
+
+                            <span class="quick-action-icon">€</span>
+
+                            <span>
+                                <strong>Registrar gasto</strong>
+                                <small>Anotar una salida de dinero</small>
+                            </span>
+
+                            <span class="quick-arrow">›</span>
+                        </button>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <!-- =========================================
+                DASHBOARD DE MIEMBROS
+                ========================================= -->
+
+            <div id="member-dashboard" hidden>
+
+                <!-- CUOTA DE SU FAMILIA -->
+                <section class="content-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <h2>Mi cuota familiar</h2>
+                            <p>Estado de la cuota correspondiente al periodo seleccionado.</p>
+                        </div>
+                    </div>
+
+                    <div id="member-current-due">
+                        <!-- Se genera desde dashboard.js -->
+                    </div>
+
+                    <details class="history-details" id="member-dues-history">
+
+                        <summary>
+                            Consultar historial de cuotas
+                        </summary>
+
+                        <div
+                            id="member-dues-history-list"
+                            class="history-list">
+                            <!-- Historial completo de cuotas -->
+                        </div>
+
+                    </details>
+
+                </section>
+
+
+                <!-- GASTOS DE LA PEÑA -->
+                <section class="content-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <h2>Gastos de la peña</h2>
+                            <p>Movimientos económicos del periodo seleccionado.</p>
+                        </div>
+                    </div>
+
+                    <div id="member-current-expenses">
+                        <!-- Se genera desde dashboard.js -->
+                    </div>
+
+                    <details class="history-details" id="member-expenses-history">
+
+                        <summary>
+                            Consultar histórico de gastos
+                        </summary>
+
+                        <div
+                            id="member-expenses-history-list"
+                            class="history-list">
+                            <!-- Historial completo de gastos -->
+                        </div>
+
+                    </details>
+
+                </section>
+
+            </div>
 
         </section>
 
@@ -217,7 +532,8 @@
                 </div>
 
                 <button class="button button-primary"
-                        data-action="familia">
+                        data-action="familia"
+                        data-role="admin,treasurer">
                     + Nueva familia
                 </button>
             </div>
@@ -231,11 +547,6 @@
                 <div>
                     <h2>Ingresos, gastos y movimientos.</h2>
                 </div>
-
-                <button class="button button-primary"
-                        data-action="gasto">
-                    + Registrar gasto
-                </button>
             </div>
 
             <div id="economy-content"></div>
@@ -262,17 +573,17 @@
             <span>Inicio</span>
         </button>
 
-        <button class="bottom-nav-item" data-view="familias">
+        <button class="bottom-nav-item" data-view="familias" data-role="admin,treasurer">
             <span class="bottom-nav-icon">♧</span>
             <span>Familias</span>
         </button>
 
-        <button class="bottom-nav-item" data-view="economia">
+        <button class="bottom-nav-item" data-view="economia" data-role="admin,treasurer">
             <span class="bottom-nav-icon">€</span>
             <span>Economía</span>
         </button>
 
-        <button class="bottom-nav-item" data-view="administracion">
+        <button class="bottom-nav-item" data-view="administracion" data-role="admin">
             <span class="bottom-nav-icon">⚙</span>
             <span>Más</span>
         </button>
