@@ -1,22 +1,33 @@
 Listado de rutas de carpetas para el volumen OS
 El número de serie del volumen es EC77-A371
 C:.
-¦   app.js
-¦   architecture
+¦   architecture.txt
+¦   códigos.xlsx
 ¦   index.html
 ¦   supabase-auth.js
 ¦   supabase-client.js
-¦   test-rls.html
 ¦   
 +---.vscode
 ¦       settings.json
 ¦       
 +---js
-¦       app.js
-¦       core.js
-¦       managers.js
-¦       ui.js
-¦       
+¦   ¦   app.js
+¦   ¦   core.js
+¦   ¦   managers.js
+¦   ¦   supabase-data.js
+¦   ¦   supabase.js
+¦   ¦   
+¦   +---ui
+¦           administration.js
+¦           dashboard.js
+¦           economy.js
+¦           events.js
+¦           families.js
+¦           forms.js
+¦           modals.js
+¦           navigation.js
+¦           ui.js
+¦           
 +---styles
         styles.css
         

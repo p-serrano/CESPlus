@@ -61,8 +61,13 @@ import { renderEconomy } from "./economy.js";
 import {
     applyAuditFilters,
     renderAuditLog,
-    renderAdministration
+    renderAdministration,
+    renderUserProfiles
 } from "./administration.js";
+
+import {
+    updateUserRole
+} from "../supabase-data.js";
 
 
 /* =====================================================
@@ -769,6 +774,61 @@ async function handleSubmit(event, handleManagerResult) {
     const form = event.target;
 
     if (!(form instanceof HTMLFormElement)) return;
+
+    // ================================================
+    // GESTIÓN DE USUARIOS Y PERMISOS
+    // ================================================
+
+    if (form.matches("[data-user-role-form]")) {
+        event.preventDefault();
+
+        // Solo el administrador puede modificar permisos.
+        if (document.documentElement.dataset.userRole !== "admin") {
+            denyAccess();
+            return;
+        }
+
+        const userId = form.dataset.userId;
+        const role = form.elements.role?.value;
+        const button = form.querySelector('button[type="submit"]');
+
+        if (!userId || !role) {
+            showToast("No se han podido identificar los datos del usuario.");
+            return;
+        }
+
+        if (!["member", "treasurer", "admin"].includes(role)) {
+            showToast("El permiso seleccionado no es válido.");
+            return;
+        }
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Guardando...";
+        }
+
+        try {
+            await updateUserRole(userId, role);
+
+            showToast("Permisos actualizados correctamente.");
+
+            await renderUserProfiles();
+
+        } catch (error) {
+            console.error("Error actualizando permisos:", error);
+
+            showToast(
+                error.message || "No se han podido actualizar los permisos."
+            );
+
+            if (button) {
+                button.disabled = false;
+                button.textContent = "Guardar";
+            }
+        }
+
+        return;
+    }
 
     // Un miembro no puede enviar formularios de gestión.
     if (isMember()) {

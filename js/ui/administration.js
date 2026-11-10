@@ -12,6 +12,15 @@ import {
     loadFamilyLinkRequests
 } from "../managers.js";
 
+import {
+    loadUserProfiles
+} from "../supabase-data.js";
+
+
+/* =====================================================
+   HISTORIAL DE ACTIVIDAD
+   ===================================================== */
+
 export function applyAuditFilters() {
     const filters = {
         categories: [...document.querySelectorAll(
@@ -33,6 +42,7 @@ export function applyAuditFilters() {
     setActiveAuditFilters(filters);
     renderAuditLog();
 }
+
 
 export function renderAuditLog() {
     const container = document.getElementById("audit-log-list");
@@ -237,6 +247,11 @@ export function renderAuditLog() {
     }).join("");
 }
 
+
+/* =====================================================
+   SOLICITUDES DE VINCULACIÓN
+   ===================================================== */
+
 export async function renderFamilyLinkRequests() {
     const container = document.getElementById(
         "family-link-requests-list"
@@ -277,53 +292,200 @@ export async function renderFamilyLinkRequests() {
     }
 
     container.innerHTML = result.requests.map(request => `
-        <div class="family-link-request">
+    <div class="family-link-request">
 
-            <div class="family-link-request-info">
-                <div class="family-link-request-name">
-                    <strong>${escapeHTML(request.userName)}</strong>
-                    <span class="request-status-badge">Pendiente</span>
-                </div>
+        <div class="family-link-request-info">
 
-                <span>
-                    Familia: ${escapeHTML(request.familyName)}
-                </span>
-
-                <span>
-                    Correo: ${escapeHTML(request.userEmail)}
-                </span>
-
-                <small>
-                    ${new Date(request.requestedAt).toLocaleString("es-ES")}
-                </small>
+            <div class="family-link-request-name">
+                <strong>${escapeHTML(request.userName)}</strong>
+                <span class="request-status-badge">Pendiente</span>
             </div>
 
-            <div class="family-link-request-actions">
+            <span>
+                Familia: ${escapeHTML(request.familyName)}
+            </span>
 
-                <button
-                    type="button"
-                    class="button button-primary"
-                    data-action="aprobar-vinculacion"
-                    data-request-id="${escapeHTML(request.id)}">
-                    Aprobar
-                </button>
+            <span>
+                Miembro solicitado: ${escapeHTML(request.memberName)}
+            </span>
 
-                <button
-                    type="button"
-                    class="button button-danger"
-                    data-action="rechazar-vinculacion"
-                    data-request-id="${escapeHTML(request.id)}">
-                    Rechazar
-                </button>
+            <span>
+                Correo: ${escapeHTML(request.userEmail)}
+            </span>
 
-            </div>
+            <small>
+                ${new Date(request.requestedAt).toLocaleString("es-ES")}
+            </small>
 
         </div>
-    `).join("");
+
+        <div class="family-link-request-actions">
+
+            <button
+                type="button"
+                class="button button-primary"
+                data-action="aprobar-vinculacion"
+                data-request-id="${escapeHTML(request.id)}">
+                Aprobar
+            </button>
+
+            <button
+                type="button"
+                class="button button-danger"
+                data-action="rechazar-vinculacion"
+                data-request-id="${escapeHTML(request.id)}">
+                Rechazar
+            </button>
+
+        </div>
+
+    </div>
+`).join("");
 }
+
+
+/* =====================================================
+   USUARIOS Y PERMISOS
+   ===================================================== */
+
+export async function renderUserProfiles() {
+    const container = document.getElementById("user-profiles-list");
+
+    if (!container) return;
+
+    // Protección adicional: esta sección es exclusiva del administrador.
+    if (document.documentElement.dataset.userRole !== "admin") {
+        container.innerHTML = `
+            <p class="empty-state">
+                No tienes permisos para gestionar usuarios.
+            </p>
+        `;
+        return;
+    }
+
+    container.innerHTML = "<p>Cargando usuarios...</p>";
+
+    try {
+        const profiles = await loadUserProfiles();
+
+        const currentUserResponse = await import("../../supabase-client.js");
+        const { data: authData } = await currentUserResponse.supabase.auth.getUser();
+        const currentUserId = authData?.user?.id;
+
+        if (profiles.length === 0) {
+            container.innerHTML = `
+                <p class="empty-state">
+                    No hay usuarios registrados.
+                </p>
+            `;
+            return;
+        }
+
+        const roleLabels = {
+            admin: "Administrador",
+            treasurer: "Tesorero",
+            member: "Miembro"
+        };
+
+        container.innerHTML = profiles.map(profile => {
+            const isCurrentUser = profile.userId === currentUserId;
+
+            return `
+                <article class="user-profile-card">
+
+                    <div class="user-profile-info">
+                        <strong>
+                            ${escapeHTML(profile.displayName || "Usuario")}
+                        </strong>
+
+                        <span>
+                            ${escapeHTML(profile.email || "Sin correo")}
+                        </span>
+
+                        <small>
+                            Familia: ${escapeHTML(profile.familyName)}
+                        </small>
+
+                        <small>
+                            Estado: 
+                            <span class="${profile.active ? "status-active" : "status-inactive"}">
+                                ${profile.active ? "Activo" : "Pendiente de activación"}
+                            </span>
+                        </small>
+                    </div>
+
+                    <form
+                        class="user-role-form"
+                        data-user-role-form
+                        data-user-id="${escapeHTML(profile.userId)}">
+
+                        <label>
+                            <span>Permisos</span>
+
+                            <select
+                                name="role"
+                                ${isCurrentUser ? "disabled" : ""}
+                                aria-label="Permisos de ${escapeHTML(profile.displayName)}">
+
+                                <option
+                                    value="member"
+                                    ${profile.role === "member" ? "selected" : ""}>
+                                    ${roleLabels.member}
+                                </option>
+
+                                <option
+                                    value="treasurer"
+                                    ${profile.role === "treasurer" ? "selected" : ""}>
+                                    ${roleLabels.treasurer}
+                                </option>
+
+                                <option
+                                    value="admin"
+                                    ${profile.role === "admin" ? "selected" : ""}>
+                                    ${roleLabels.admin}
+                                </option>
+
+                            </select>
+                        </label>
+
+                        ${
+                            isCurrentUser
+                                ? `<small class="user-role-note">Tu propia cuenta no se puede modificar desde aquí.</small>`
+                                : `
+                                    <button
+                                        type="submit"
+                                        class="button button-primary">
+                                        Guardar
+                                    </button>
+                                `
+                        }
+
+                    </form>
+
+                </article>
+            `;
+        }).join("");
+
+    } catch (error) {
+        console.error("Error al cargar usuarios:", error);
+
+        container.innerHTML = `
+            <p class="empty-state">
+                No se han podido cargar los usuarios.
+            </p>
+        `;
+    }
+}
+
+
+/* =====================================================
+   ADMINISTRACIÓN
+   ===================================================== */
 
 export function renderAdministration() {
     const container = document.getElementById("administration-content");
+
+    if (!container) return;
 
     container.innerHTML = `
 
@@ -341,6 +503,21 @@ export function renderAdministration() {
 
             <div id="family-link-requests-list">
                 <p>Cargando solicitudes...</p>
+            </div>
+
+        </section>
+
+        <section class="admin-section" id="user-profiles-section" data-role="admin">
+
+            <div class="admin-section-heading">
+                <div>
+                    <h3>Usuarios y permisos</h3>
+                    <p>Consulta las cuentas registradas y gestiona sus niveles de acceso.</p>
+                </div>
+            </div>
+
+            <div id="user-profiles-list">
+                <p>Cargando usuarios...</p>
             </div>
 
         </section>
@@ -424,40 +601,13 @@ export function renderAdministration() {
 
                                 <div class="audit-checkbox-grid">
 
-                                    <label>
-                                        <input type="checkbox" name="audit-category" value="family">
-                                        Familias
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-category" value="member">
-                                        Miembros
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-category" value="due">
-                                        Cuotas
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-category" value="payment">
-                                        Ingresos
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-category" value="expense">
-                                        Gastos
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-category" value="economy">
-                                        Economía
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-category" value="settings">
-                                        Configuración
-                                    </label>
+                                    <label><input type="checkbox" name="audit-category" value="family"> Familias</label>
+                                    <label><input type="checkbox" name="audit-category" value="member"> Miembros</label>
+                                    <label><input type="checkbox" name="audit-category" value="due"> Cuotas</label>
+                                    <label><input type="checkbox" name="audit-category" value="payment"> Ingresos</label>
+                                    <label><input type="checkbox" name="audit-category" value="expense"> Gastos</label>
+                                    <label><input type="checkbox" name="audit-category" value="economy"> Economía</label>
+                                    <label><input type="checkbox" name="audit-category" value="settings"> Configuración</label>
 
                                 </div>
                             </div>
@@ -490,60 +640,17 @@ export function renderAdministration() {
 
                                 <div class="audit-checkbox-grid">
 
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="member_added">
-                                        Altas
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="member_removed">
-                                        Bajas
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="member_name_changed">
-                                        Cambios de nombre
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="member_type_changed">
-                                        Cambios de tipo
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="member_fee_changed">
-                                        Cambios de cuota
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="family_name_changed">
-                                        Cambios de familia
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="payment">
-                                        Ingresos registrados
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="payment_reversed">
-                                        Ingresos anulados
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="expense_created">
-                                        Gastos creados
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="expense_updated">
-                                        Gastos modificados
-                                    </label>
-
-                                    <label>
-                                        <input type="checkbox" name="audit-tag" value="expense_deleted">
-                                        Gastos eliminados
-                                    </label>
+                                    <label><input type="checkbox" name="audit-tag" value="member_added"> Altas</label>
+                                    <label><input type="checkbox" name="audit-tag" value="member_removed"> Bajas</label>
+                                    <label><input type="checkbox" name="audit-tag" value="member_name_changed"> Cambios de nombre</label>
+                                    <label><input type="checkbox" name="audit-tag" value="member_type_changed"> Cambios de tipo</label>
+                                    <label><input type="checkbox" name="audit-tag" value="member_fee_changed"> Cambios de cuota</label>
+                                    <label><input type="checkbox" name="audit-tag" value="family_name_changed"> Cambios de familia</label>
+                                    <label><input type="checkbox" name="audit-tag" value="payment"> Ingresos registrados</label>
+                                    <label><input type="checkbox" name="audit-tag" value="payment_reversed"> Ingresos anulados</label>
+                                    <label><input type="checkbox" name="audit-tag" value="expense_created"> Gastos creados</label>
+                                    <label><input type="checkbox" name="audit-tag" value="expense_updated"> Gastos modificados</label>
+                                    <label><input type="checkbox" name="audit-tag" value="expense_deleted"> Gastos eliminados</label>
 
                                 </div>
                             </div>
@@ -568,25 +675,11 @@ export function renderAdministration() {
 
                                 <div class="audit-date-shortcuts">
 
-                                    <button type="button" data-audit-period="24h">
-                                        Últimas 24 horas
-                                    </button>
-
-                                    <button type="button" data-audit-period="7d">
-                                        Últimos 7 días
-                                    </button>
-
-                                    <button type="button" data-audit-period="30d">
-                                        Últimos 30 días
-                                    </button>
-
-                                    <button type="button" data-audit-period="month">
-                                        Este mes
-                                    </button>
-
-                                    <button type="button" data-audit-period="previous-month">
-                                        Mes anterior
-                                    </button>
+                                    <button type="button" data-audit-period="24h">Últimas 24 horas</button>
+                                    <button type="button" data-audit-period="7d">Últimos 7 días</button>
+                                    <button type="button" data-audit-period="30d">Últimos 30 días</button>
+                                    <button type="button" data-audit-period="month">Este mes</button>
+                                    <button type="button" data-audit-period="previous-month">Mes anterior</button>
 
                                 </div>
 
@@ -707,5 +800,5 @@ export function renderAdministration() {
 
     renderAuditLog();
     renderFamilyLinkRequests();
+    renderUserProfiles();
 }
-

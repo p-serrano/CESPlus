@@ -42,6 +42,13 @@ const familyLinkInfo = document.getElementById("family-link-info");
 const familyLinkPending = document.getElementById("family-link-pending");
 const checkLinkStatusButton = document.getElementById("check-link-status-button");
 
+// Selección del miembro
+const familyMemberForm = document.getElementById("family-member-form");
+const familyMemberSelect = document.getElementById("family-member-select");
+const familyMemberError = document.getElementById("family-member-error");
+const familyMemberButton = document.getElementById("family-member-button");
+const familyMemberBackButton = document.getElementById("family-member-back-button");
+
 // Botones de navegación
 const showRegisterButton = document.getElementById("show-register-button");
 const showLoginButton = document.getElementById("show-login-button");
@@ -132,7 +139,8 @@ function clearMessages() {
         registerError,
         registerInfo,
         familyLinkError,
-        familyLinkInfo
+        familyLinkInfo,
+        familyMemberError
     ].forEach(element => setMessage(element, ""));
 }
 
@@ -181,9 +189,22 @@ function setFamilyLinkLoading(isLoading) {
     familyCode.disabled = isLoading;
 
     familyLinkButton.textContent = isLoading
+        ? "Comprobando código..."
+        : "Comprobar código";
+}
+
+
+function setFamilyMemberLoading(isLoading) {
+
+    familyMemberButton.disabled = isLoading;
+    familyMemberSelect.disabled = isLoading;
+    familyMemberBackButton.disabled = isLoading;
+
+    familyMemberButton.textContent = isLoading
         ? "Enviando solicitud..."
         : "Enviar solicitud";
 }
+
 
 /* =====================================================
    PERMISOS DE VISUALIZACIÓN SEGÚN EL ROL
@@ -201,6 +222,7 @@ function applyRoleVisibility(profile) {
     });
 }
 
+
 /* =====================================================
    MOSTRAR APLICACIÓN
    ===================================================== */
@@ -214,15 +236,12 @@ function showApplication(profile) {
 
     const displayName = profile.display_name || "Usuario";
 
-    // Nombre del usuario
     const userNameElement =
         document.querySelector(".user-details strong");
 
-    // Iniciales del avatar
     const avatarElement =
         document.querySelector(".avatar");
 
-    // Rol del usuario
     const userSubtitle =
         document.querySelector(".user-details span");
 
@@ -256,6 +275,35 @@ function showApplication(profile) {
     }
 }
 
+
+/* =====================================================
+   RESTABLECER FORMULARIO DE VINCULACIÓN
+   ===================================================== */
+
+function resetFamilyLinkForm() {
+
+    familyLinkForm.hidden = false;
+    familyMemberForm.hidden = true;
+
+    familyLinkPending.hidden = true;
+    checkLinkStatusButton.hidden = true;
+
+    familyMemberSelect.innerHTML =
+        '<option value="">Selecciona un miembro...</option>';
+
+    familyMemberForm.reset();
+
+    familyLinkButton.disabled = false;
+    familyCode.disabled = false;
+    familyLinkButton.textContent = "Comprobar código";
+
+    familyMemberButton.disabled = false;
+    familyMemberSelect.disabled = false;
+    familyMemberBackButton.disabled = false;
+    familyMemberButton.textContent = "Enviar solicitud";
+}
+
+
 /* =====================================================
    MOSTRAR VINCULACIÓN FAMILIAR
    ===================================================== */
@@ -264,9 +312,7 @@ function showLinkingScreen() {
 
     showView("familyLink");
 
-    familyLinkForm.hidden = false;
-    familyLinkPending.hidden = true;
-    checkLinkStatusButton.hidden = true;
+    resetFamilyLinkForm();
 
     clearMessages();
 
@@ -305,16 +351,21 @@ async function updateFamilyRequestDisplay() {
         if (data?.status === "pending") {
 
             familyLinkForm.hidden = true;
+            familyMemberForm.hidden = true;
+
             familyLinkPending.hidden = false;
             checkLinkStatusButton.hidden = false;
 
         } else {
 
-            familyLinkForm.hidden = false;
             familyLinkPending.hidden = true;
             checkLinkStatusButton.hidden = true;
 
+            familyLinkForm.hidden = false;
+            familyMemberForm.hidden = true;
+
             if (data?.status === "rejected") {
+
                 setMessage(
                     familyLinkInfo,
                     "Tu solicitud anterior ha sido rechazada. " +
@@ -324,6 +375,7 @@ async function updateFamilyRequestDisplay() {
         }
 
     } catch (error) {
+
         console.error("Error al consultar el estado familiar:", error);
     }
 }
@@ -335,15 +387,28 @@ async function updateFamilyRequestDisplay() {
 
 function showLogin() {
 
+    // Comprobamos si realmente había una sesión
+    // que debamos limpiar.
+    const hadSession = Boolean(
+        currentUser ||
+        currentProfile ||
+        lastAuthenticatedUserId
+    );
+
     currentUser = null;
     currentProfile = null;
     lastAuthenticatedUserId = null;
 
     showLoginView();
 
-    document.dispatchEvent(
-        new CustomEvent("cesplus:signed-out")
-    );
+    // Solo notificamos a la aplicación cuando
+    // se produce un cambio real de sesión.
+    if (hadSession) {
+
+        document.dispatchEvent(
+            new CustomEvent("cesplus:signed-out")
+        );
+    }
 }
 
 
@@ -390,7 +455,7 @@ async function loadAuthorizedProfile(session, forceRefresh = false) {
 
         const { data: profile, error } = await supabase
             .from("profiles")
-            .select("user_id, display_name, role, family_id, active")
+            .select("user_id, display_name, role, family_id, member_id, active")
             .eq("user_id", userId)
             .maybeSingle();
 
@@ -451,7 +516,8 @@ async function loadAuthorizedProfile(session, forceRefresh = false) {
         if (
             profile.role === "member" &&
             profile.active === false &&
-            profile.family_id === null
+            profile.family_id === null &&
+            profile.member_id === null
         ) {
 
             lastAuthenticatedUserId = null;
@@ -608,15 +674,12 @@ registerForm.addEventListener("submit", async event => {
 
         registerForm.reset();
 
-        // Si Supabase devuelve sesión, podemos continuar directamente.
         if (data.session) {
 
             await loadAuthorizedProfile(data.session);
 
         } else {
 
-            // Confirm email está activado:
-            // el usuario debe confirmar su correo antes de entrar.
             showConfirmationView(email);
         }
 
@@ -698,7 +761,7 @@ loginForm.addEventListener("submit", async event => {
 
 
 /* =====================================================
-   SOLICITAR VINCULACIÓN FAMILIAR
+   FASE 1: COMPROBAR CÓDIGO FAMILIAR
    ===================================================== */
 
 familyLinkForm.addEventListener("submit", async event => {
@@ -707,6 +770,7 @@ familyLinkForm.addEventListener("submit", async event => {
 
     setMessage(familyLinkError, "");
     setMessage(familyLinkInfo, "");
+    setMessage(familyMemberError, "");
 
     const code = familyCode.value.trim();
 
@@ -725,7 +789,7 @@ familyLinkForm.addEventListener("submit", async event => {
     try {
 
         const { data, error } = await supabase.rpc(
-            "request_family_link",
+            "get_family_adults_by_code",
             {
                 p_code: code
             }
@@ -733,28 +797,78 @@ familyLinkForm.addEventListener("submit", async event => {
 
         if (error) {
 
-            console.error("Error al solicitar la vinculación:", error);
+            console.error("Error al comprobar el código:", error);
 
             setMessage(
                 familyLinkError,
-                "No se ha podido enviar la solicitud. " +
+                "No se ha podido comprobar el código. " +
                 "Inténtalo de nuevo."
             );
 
             return;
         }
 
-        switch (data) {
+        if (!data || typeof data !== "object") {
 
-            case "pending":
+            setMessage(
+                familyLinkError,
+                "La respuesta del servidor no es válida."
+            );
 
+            return;
+        }
+
+        switch (data.status) {
+
+            case "ok": {
+
+                const adults = Array.isArray(data.adults)
+                    ? data.adults
+                    : [];
+
+                if (adults.length === 0) {
+
+                    setMessage(
+                        familyLinkError,
+                        "No hay adultos disponibles para vincular en esta familia."
+                    );
+
+                    return;
+                }
+
+                // Guardamos el código para la segunda fase.
+                familyCode.dataset.validatedCode = code;
+
+                // Limpiamos las opciones anteriores.
+                familyMemberSelect.innerHTML =
+                    '<option value="">Selecciona un miembro...</option>';
+
+                // Añadimos los adultos disponibles.
+                adults.forEach(adult => {
+
+                    const option = document.createElement("option");
+
+                    option.value = adult.id;
+                    option.textContent = adult.name;
+
+                    familyMemberSelect.appendChild(option);
+                });
+
+                // Cambiamos a la segunda fase.
                 familyLinkForm.hidden = true;
-                familyLinkPending.hidden = false;
-                checkLinkStatusButton.hidden = false;
+                familyMemberForm.hidden = false;
 
-                setMessage(familyLinkInfo, "");
+                familyMemberSelect.value = "";
+
+                setMessage(
+                    familyLinkInfo,
+                    "Código correcto. Ahora selecciona tu nombre."
+                );
+
+                familyMemberSelect.focus();
 
                 break;
+            }
 
             case "invalid_code":
 
@@ -772,6 +886,22 @@ familyLinkForm.addEventListener("submit", async event => {
                     "Has superado el número de intentos. " +
                     "Espera 15 minutos antes de volver a intentarlo."
                 );
+
+                break;
+
+            case "no_adults":
+
+                setMessage(
+                    familyLinkError,
+                    "No hay adultos disponibles para vincular en esta familia. " +
+                    "Contacta con la administración."
+                );
+
+                break;
+
+            case "pending":
+
+                await updateFamilyRequestDisplay();
 
                 break;
 
@@ -798,14 +928,14 @@ familyLinkForm.addEventListener("submit", async event => {
 
                 setMessage(
                     familyLinkError,
-                    "No se ha podido procesar la solicitud. " +
+                    "No se ha podido validar el código. " +
                     "Contacta con la administración."
                 );
         }
 
     } catch (error) {
 
-        console.error("Error al solicitar la vinculación:", error);
+        console.error("Error al comprobar el código familiar:", error);
 
         setMessage(
             familyLinkError,
@@ -816,6 +946,171 @@ familyLinkForm.addEventListener("submit", async event => {
 
         setFamilyLinkLoading(false);
     }
+});
+
+
+/* =====================================================
+   FASE 2: SOLICITAR VINCULACIÓN CON EL ADULTO
+   ===================================================== */
+
+familyMemberForm.addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    setMessage(familyMemberError, "");
+
+    const code = familyCode.dataset.validatedCode;
+    const memberId = familyMemberSelect.value;
+
+    if (!code) {
+
+        setMessage(
+            familyMemberError,
+            "Debes comprobar primero el código familiar."
+        );
+
+        familyMemberForm.hidden = true;
+        familyLinkForm.hidden = false;
+
+        return;
+    }
+
+    if (!memberId) {
+
+        setMessage(
+            familyMemberError,
+            "Selecciona tu nombre antes de continuar."
+        );
+
+        return;
+    }
+
+    setFamilyMemberLoading(true);
+
+    try {
+
+        const { data, error } = await supabase.rpc(
+            "request_family_link",
+            {
+                p_code: code,
+                p_member_id: memberId
+            }
+        );
+
+        if (error) {
+
+            console.error("Error al solicitar la vinculación:", error);
+
+            setMessage(
+                familyMemberError,
+                "No se ha podido enviar la solicitud. " +
+                "Inténtalo de nuevo."
+            );
+
+            return;
+        }
+
+        switch (data) {
+
+            case "pending":
+
+                familyLinkForm.hidden = true;
+                familyMemberForm.hidden = true;
+
+                familyLinkPending.hidden = false;
+                checkLinkStatusButton.hidden = false;
+
+                setMessage(familyLinkInfo, "");
+
+                break;
+
+            case "invalid_code":
+
+                setMessage(
+                    familyMemberError,
+                    "El código ha dejado de ser válido. " +
+                    "Vuelve a comprobarlo."
+                );
+
+                break;
+
+            case "invalid_member":
+
+                setMessage(
+                    familyMemberError,
+                    "El miembro seleccionado ya no está disponible. " +
+                    "Vuelve a comprobar el código y selecciona de nuevo."
+                );
+
+                break;
+
+            case "blocked":
+
+                setMessage(
+                    familyMemberError,
+                    "Has superado el número de intentos. " +
+                    "Espera 15 minutos antes de volver a intentarlo."
+                );
+
+                break;
+
+            case "account_not_eligible":
+
+                setMessage(
+                    familyMemberError,
+                    "Esta cuenta ya no puede solicitar una vinculación. " +
+                    "Contacta con la administración."
+                );
+
+                break;
+
+            case "not_authenticated":
+
+                setMessage(
+                    familyMemberError,
+                    "Tu sesión ha caducado. Inicia sesión de nuevo."
+                );
+
+                break;
+
+            default:
+
+                setMessage(
+                    familyMemberError,
+                    "No se ha podido procesar la solicitud. " +
+                    "Contacta con la administración."
+                );
+        }
+
+    } catch (error) {
+
+        console.error("Error al solicitar la vinculación:", error);
+
+        setMessage(
+            familyMemberError,
+            "Se ha producido un error. Inténtalo de nuevo."
+        );
+
+    } finally {
+
+        setFamilyMemberLoading(false);
+    }
+});
+
+
+/* =====================================================
+   VOLVER A LA FASE DEL CÓDIGO
+   ===================================================== */
+
+familyMemberBackButton.addEventListener("click", () => {
+
+    familyMemberForm.hidden = true;
+    familyLinkForm.hidden = false;
+
+    setMessage(familyMemberError, "");
+    setMessage(familyLinkInfo, "");
+
+    familyCode.focus();
 });
 
 
@@ -843,11 +1138,12 @@ checkLinkStatusButton.addEventListener("click", async () => {
         // Si administración lo ha aprobado, entrará en la aplicación.
         await loadAuthorizedProfile(data.session, true);
 
-        // Si sigue siendo provisional, actualizamos el estado de la solicitud.
+        // Si sigue siendo provisional, actualizamos el estado.
         if (
             currentProfile &&
             currentProfile.active === false
         ) {
+
             await updateFamilyRequestDisplay();
         }
 
@@ -874,9 +1170,16 @@ checkLinkStatusButton.addEventListener("click", async () => {
 
 async function signOut() {
 
+    // Evitamos dobles clics mientras se cierra la sesión.
+    logoutButton.disabled = true;
+    authLogoutButton.disabled = true;
+
     try {
 
-        const { error } = await supabase.auth.signOut();
+        // Cerramos únicamente la sesión de este dispositivo.
+        const { error } = await supabase.auth.signOut({
+            scope: "local"
+        });
 
         if (error) {
 
@@ -889,16 +1192,23 @@ async function signOut() {
             return;
         }
 
-        showLogin();
-
         loginPassword.value = "";
+
         loginEmail.focus();
+
+        // El evento SIGNED_OUT de Supabase se encargará
+        // de ejecutar showLogin() y limpiar la aplicación.
 
     } catch (error) {
 
-        console.error("Error al cerrar sesión:", error);
+        console.error("Error al cerrar la sesión:", error);
 
         alert("Se ha producido un error al cerrar la sesión.");
+
+    } finally {
+
+        logoutButton.disabled = false;
+        authLogoutButton.disabled = false;
     }
 }
 

@@ -435,13 +435,13 @@ export async function reactivateFamily(familyId) {
     return family;
 }
 
-/**
+ /**
  * Obtener solicitudes de vinculación pendientes.
  */
 export async function getPendingFamilyLinkRequests() {
     const { data: requests, error } = await supabase
         .from("family_link_requests")
-        .select("id, user_id, family_id, requested_at")
+        .select("id, user_id, family_id, member_id, requested_at")
         .eq("status", "pending")
         .order("requested_at", { ascending: true });
 
@@ -451,7 +451,7 @@ export async function getPendingFamilyLinkRequests() {
         return [];
     }
 
-    // Recuperar los nombres de los usuarios solicitantes.
+    // Recuperar los usuarios solicitantes.
     const userIds = [...new Set(requests.map(request => request.user_id))];
 
     const { data: profiles, error: profilesError } = await supabase
@@ -461,11 +461,39 @@ export async function getPendingFamilyLinkRequests() {
 
     if (profilesError) throw profilesError;
 
+    // Recuperar los miembros seleccionados en las solicitudes.
+    const memberIds = [
+        ...new Set(
+            requests
+                .map(request => request.member_id)
+                .filter(Boolean)
+        )
+    ];
+
+    let members = [];
+
+    if (memberIds.length > 0) {
+        const { data: memberRows, error: membersError } = await supabase
+            .from("members")
+            .select("id, name")
+            .in("id", memberIds);
+
+        if (membersError) throw membersError;
+
+        members = memberRows || [];
+    }
+
     return requests.map(request => ({
         id: request.id,
         userId: request.user_id,
         familyId: request.family_id,
+        memberId: request.member_id,
+        memberName: members.find(
+            member => member.id === request.member_id
+        )?.name || "Miembro no encontrado",
+
         requestedAt: request.requested_at,
+
         userName: profiles?.find(
             profile => profile.user_id === request.user_id
         )?.display_name || "Usuario sin nombre",
@@ -566,4 +594,94 @@ export async function loadGlobalDashboardMetrics(period) {
         expensesCents: Number(data.expensesCents) || 0,
         pendingCents: Number(data.pendingCents) || 0
     };
+}
+
+/**
+ * Obtener todos los perfiles y sus familias.
+ * Esta operación está reservada a administradores.
+ */
+export async function loadUserProfiles() {
+    const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+    if (authError || !authData.user) {
+        throw new Error("No se ha podido identificar al usuario.");
+    }
+
+    const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select(`
+            user_id,
+            display_name,
+            email,
+            role,
+            family_id,
+            active
+        `)
+        .order("display_name");
+
+    if (profilesError) throw profilesError;
+
+    const { data: families, error: familiesError } = await supabase
+        .from("families")
+        .select("id, name");
+
+    if (familiesError) throw familiesError;
+
+    return (profiles || []).map(profile => ({
+        userId: profile.user_id,
+        displayName: profile.display_name,
+        email: profile.email || "",
+        role: profile.role,
+        familyId: profile.family_id,
+        familyName: families?.find(
+            family => family.id === profile.family_id
+        )?.name || "Sin familia vinculada",
+        active: profile.active
+    }));
+}
+
+
+/**
+ * Actualizar el rol de un usuario.
+ */
+export async function updateUserRole(userId, newRole) {
+    const allowedRoles = ["member", "treasurer", "admin"];
+
+    if (!allowedRoles.includes(newRole)) {
+        throw new Error("El permiso seleccionado no es válido.");
+    }
+
+    const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+    if (authError || !authData.user) {
+        throw new Error("No se ha podido identificar al usuario.");
+    }
+
+    // Evitar que el administrador cambie accidentalmente
+    // sus propios permisos.
+    if (authData.user.id === userId) {
+        throw new Error("No puedes modificar tus propios permisos.");
+    }
+
+    const { data, error } = await supabase
+        .from("profiles")
+        .update({
+            role: newRole,
+            updated_at: new Date().toISOString()
+        })
+        .eq("user_id", userId)
+        .select("user_id, display_name, email, role, family_id, active")
+        .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+        throw new Error(
+            "No se ha podido actualizar el usuario. Comprueba los permisos."
+        );
+    }
+
+    return data;
 }

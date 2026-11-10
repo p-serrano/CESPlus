@@ -173,12 +173,15 @@
 
             <!-- 4. VINCULAR FAMILIA -->
             <div id="link-family-view" class="auth-view" hidden>
+
                 <div class="auth-heading">
                     <h1>Vincular familia</h1>
                     <p>Introduce el código de acceso que te ha facilitado la administración de la peña.</p>
                 </div>
 
+                <!-- FASE 1: VALIDAR CÓDIGO -->
                 <form id="family-link-form">
+
                     <div class="form-group">
                         <label for="family-code">Código de familia</label>
                         <input
@@ -192,25 +195,85 @@
                         >
                     </div>
 
-                    <p id="family-link-error" class="auth-message auth-error" role="alert" hidden></p>
-                    <p id="family-link-info" class="auth-message auth-info" role="status" hidden></p>
+                    <p id="family-link-error"
+                    class="auth-message auth-error"
+                    role="alert"
+                    hidden></p>
 
-                    <button type="submit" id="family-link-button" class="button button-primary auth-submit">
-                        Enviar solicitud
+                    <p id="family-link-info"
+                    class="auth-message auth-info"
+                    role="status"
+                    hidden></p>
+
+                    <button
+                        type="submit"
+                        id="family-link-button"
+                        class="button button-primary auth-submit">
+                        Comprobar código
                     </button>
+
                 </form>
 
-                <div id="family-link-pending" class="auth-message auth-info" hidden>
+                <!-- FASE 2: SELECCIONAR MIEMBRO -->
+                <form id="family-member-form" hidden>
+
+                    <div class="form-group">
+                        <label for="family-member-select">
+                            Selecciona tu nombre
+                        </label>
+
+                        <select
+                            id="family-member-select"
+                            name="member_id"
+                            required
+                        >
+                            <option value="">Selecciona un miembro...</option>
+                        </select>
+                    </div>
+
+                    <p id="family-member-error"
+                    class="auth-message auth-error"
+                    role="alert"
+                    hidden></p>
+
+                    <button
+                        type="submit"
+                        id="family-member-button"
+                        class="button button-primary auth-submit">
+                        Enviar solicitud
+                    </button>
+
+                    <button
+                        type="button"
+                        id="family-member-back-button"
+                        class="button button-secondary auth-submit">
+                        Volver
+                    </button>
+
+                </form>
+
+                <!-- SOLICITUD PENDIENTE -->
+                <div id="family-link-pending"
+                    class="auth-message auth-info"
+                    hidden>
                     Tu solicitud está pendiente de aprobación por parte de la administración.
                 </div>
 
-                <button type="button" id="check-link-status-button" class="button button-secondary auth-submit" hidden>
+                <button
+                    type="button"
+                    id="check-link-status-button"
+                    class="button button-secondary auth-submit"
+                    hidden>
                     Comprobar estado
                 </button>
 
-                <button type="button" id="auth-logout-button" class="auth-text-button">
+                <button
+                    type="button"
+                    id="auth-logout-button"
+                    class="auth-text-button">
                     Cerrar sesión
                 </button>
+
             </div>
 
             <p class="auth-footer">Café en Sal · Gestión de la peña</p>
