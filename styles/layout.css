@@ -1,0 +1,444 @@
+/* =====================================================
+   CESPLUS — ESTRUCTURA Y DISTRIBUCIÓN
+   ===================================================== */
+
+/* ESTRUCTURA PRINCIPAL */
+
+.app-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.sidebar {
+    display: none;
+}
+
+.main-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    padding:
+        18px
+        16px
+        calc(96px + env(safe-area-inset-bottom));
+}
+
+/* =====================================================
+   CABECERA
+   ===================================================== */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 18px;
+
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 4px rgb(48 40 32 / 2%);
+}
+
+.eyebrow {
+    margin-bottom: 5px;
+
+    color: var(--primary-light);
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.topbar h1 {
+    margin-bottom: 0;
+
+    font-size: clamp(21px, 5vw, 30px);
+    font-weight: 750;
+    line-height: 1.15;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.topbar-period {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+
+    min-width: 0;
+}
+
+.period-label {
+    color: var(--text-muted);
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+#period-select {
+    width: auto;
+    max-width: 115px;
+    min-height: 32px;
+
+    padding: 0 22px 0 8px;
+
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    background: var(--surface-alt);
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+#period-select:hover {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+#period-select:focus-visible {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
+}
+
+/* Información del usuario */
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--primary);
+    color: white;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.user-details strong {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.user-details span {
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+.logout-button {
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* =====================================================
+   NAVEGACIÓN INFERIOR — MÓVIL
+   ===================================================== */
+
+.bottom-nav {
+    position: fixed;
+    z-index: 100;
+
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    min-height: 66px;
+    padding:
+        7px
+        8px
+        calc(7px + env(safe-area-inset-bottom));
+
+    border-top: 1px solid var(--border);
+
+    background: rgb(255 254 250 / 97%);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    min-width: 0;
+    min-height: 48px;
+    padding: 3px 2px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: transparent;
+    color: var(--text-muted);
+
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.bottom-nav-icon {
+    font-size: 22px;
+    line-height: 1.1;
+}
+
+.bottom-nav-item.active {
+    color: var(--primary);
+    background: var(--surface-alt);
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+    font-weight: 800;
+}
+
+/* Navegación lateral — escritorio */
+
+@media (min-width: 1050px) {
+
+    .app-shell {
+        display: grid;
+        grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    }
+
+    .sidebar {
+        position: sticky;
+        top: 0;
+
+        display: flex;
+        flex-direction: column;
+
+        width: var(--sidebar-width);
+        height: 100vh;
+        height: 100dvh;
+
+        padding: 25px 16px;
+
+        border-right: 1px solid var(--border);
+
+        background: var(--surface);
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+
+        padding: 4px 8px 30px;
+    }
+
+    .brand-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 43px;
+        height: 43px;
+
+        border-radius: 13px;
+
+        background: var(--primary);
+        color: #fff;
+
+        font-size: 17px;
+        font-weight: 850;
+        letter-spacing: -0.06em;
+    }
+
+    .brand-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .brand-copy strong {
+        font-size: 18px;
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .brand-copy small {
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .sidebar-section-label {
+        padding: 0 12px;
+        margin-bottom: 10px;
+
+        color: var(--text-muted);
+
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: 0.13em;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        width: 100%;
+        min-height: 47px;
+        padding: 0 12px;
+
+        border: 0;
+        border-radius: 10px;
+
+        background: transparent;
+        color: var(--text-muted);
+
+        text-align: left;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .nav-item.active {
+        background: var(--surface-alt);
+        color: var(--primary);
+    }
+
+    .nav-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 24px;
+
+        font-size: 20px;
+    }
+
+    .sidebar-footer {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+
+        margin-top: auto;
+        padding: 16px 10px;
+
+        border-top: 1px solid var(--border);
+
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .connection-dot {
+        width: 8px;
+        height: 8px;
+
+        border-radius: 50%;
+
+        background: var(--orange);
+    }
+}
+
+/* =====================================================
+   RESPONSIVE — TABLET
+   ===================================================== */
+
+@media (min-width: 700px) {
+
+    .main-content {
+        padding: 30px 28px 40px;
+    }
+
+    .bottom-nav {
+        /* Se mantiene visible hasta el breakpoint de escritorio */
+    }
+
+    .topbar-actions {
+        gap: 22px;
+    }
+}
+
+/* =====================================================
+   RESPONSIVE — MÓVIL
+   ===================================================== */
+
+@media (max-width: 700px) {
+
+    .topbar-actions {
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .user-details {
+        display: none;
+    }
+
+    .logout-button {
+        padding: 9px 11px;
+    }
+}
+
+/* =====================================================
+   RESPONSIVE — ESCRITORIO
+   ===================================================== */
+
+@media (min-width: 1050px) {
+
+    .main-content {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+
+        padding: 34px clamp(28px, 4vw, 64px) 48px;
+    }
+
+    .bottom-nav {
+        display: none;
+    }
+
+    .topbar {
+        margin-bottom: 35px;
+    }
+}
+
+/* =====================================================
+   PANTALLAS MUY PEQUEÑAS
+   ===================================================== */
+
+@media (max-width: 360px) {
+
+    .main-content {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+}

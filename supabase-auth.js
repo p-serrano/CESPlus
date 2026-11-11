@@ -237,41 +237,46 @@ function showApplication(profile) {
     const displayName = profile.display_name || "Usuario";
 
     const userNameElement =
-        document.querySelector(".user-details strong");
+        document.getElementById("user-menu-name");
+
+    const userEmailElement =
+        document.getElementById("user-menu-email");
+
+    const userRoleElement =
+        document.getElementById("user-menu-role");
 
     const avatarElement =
         document.querySelector(".avatar");
 
-    const userSubtitle =
-        document.querySelector(".user-details span");
+    const roles = {
+        admin: "Administrador",
+        treasurer: "Tesorero",
+        member: "Miembro"
+    };
+
+    const initials = displayName
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part.charAt(0))
+        .join("")
+        .toUpperCase();
 
     if (userNameElement) {
         userNameElement.textContent = displayName;
     }
 
-    if (avatarElement) {
-
-        const initials = displayName
-            .trim()
-            .split(/\s+/)
-            .slice(0, 2)
-            .map(part => part.charAt(0))
-            .join("")
-            .toUpperCase();
-
-        avatarElement.textContent = initials || "C+";
+    if (userEmailElement) {
+        userEmailElement.textContent = currentUser?.email || "";
     }
 
-    if (userSubtitle) {
-
-        const roles = {
-            admin: "Administrador",
-            treasurer: "Tesorero",
-            member: "Miembro"
-        };
-
-        userSubtitle.textContent =
+    if (userRoleElement) {
+        userRoleElement.textContent =
             roles[profile.role] || "Usuario";
+    }
+
+    if (avatarElement) {
+        avatarElement.textContent = initials || "C+";
     }
 }
 
@@ -1216,6 +1221,89 @@ async function signOut() {
 logoutButton.addEventListener("click", signOut);
 
 authLogoutButton.addEventListener("click", signOut);
+
+
+/* =====================================================
+   MENÚ DE USUARIO
+   ===================================================== */
+
+const userMenuButton = document.getElementById("user-menu-button");
+const userMenu = document.getElementById("user-menu");
+const userMenuContainer = userMenuButton?.closest(".user-menu-container");
+
+
+function closeUserMenu() {
+
+    if (!userMenuContainer || !userMenuButton) return;
+
+    userMenuContainer.classList.remove("open");
+
+    userMenuButton.setAttribute("aria-expanded", "false");
+}
+
+
+function toggleUserMenu() {
+
+    if (!userMenuContainer || !userMenuButton) return;
+
+    const isOpening = !userMenuContainer.classList.contains("open");
+
+    userMenuContainer.classList.toggle("open", isOpening);
+
+    userMenuButton.setAttribute(
+        "aria-expanded",
+        String(isOpening)
+    );
+}
+
+
+// Estado inicial
+closeUserMenu();
+
+
+// Abrir / cerrar al pulsar el avatar
+userMenuButton?.addEventListener("click", event => {
+
+    event.stopPropagation();
+
+    toggleUserMenu();
+
+});
+
+
+// Evitar que pulsar dentro del menú lo cierre
+userMenu?.addEventListener("click", event => {
+    event.stopPropagation();
+});
+
+
+// Cerrar al pulsar fuera
+document.addEventListener("click", event => {
+
+    if (
+        userMenuContainer?.classList.contains("open") &&
+        !userMenuContainer.contains(event.target)
+    ) {
+        closeUserMenu();
+    }
+
+});
+
+
+// Cerrar con Escape
+document.addEventListener("keydown", event => {
+
+    if (
+        event.key === "Escape" &&
+        userMenuContainer?.classList.contains("open")
+    ) {
+
+        closeUserMenu();
+
+        userMenuButton?.focus();
+    }
+
+});
 
 
 /* =====================================================

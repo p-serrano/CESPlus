@@ -1,0 +1,1149 @@
+/* =====================================================
+   CESPLUS — COMPONENTES REUTILIZABLES
+   Botones, formularios, tarjetas, modales y elementos UI
+   ===================================================== */
+
+/* =====================================================
+   BOTONES
+   ===================================================== */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    font-size: 12px;
+    font-weight: 750;
+    transition: background 150ms ease, transform 150ms ease;
+}
+
+.button:active {
+    transform: scale(0.98);
+}
+
+.button-primary {
+    background: var(--primary);
+    color: #fff;
+}
+
+.button-primary:hover {
+    background: var(--primary-dark);
+}
+
+.button-secondary {
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text);
+}
+
+.button-danger {
+    background-color: #b94036;
+    color: #ffffff;
+    border: 1px solid #b94036;
+}
+
+.button-danger:hover {
+    background-color: #963129;
+    border-color: #963129;
+}
+
+/* =====================================================
+   FILTROS
+   ===================================================== */
+
+.filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.filter-row::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-chip {
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.filter-chip.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+}
+
+/* =====================================================
+   LISTAS Y TARJETAS DE CUOTAS
+   ===================================================== */
+
+.dues-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.due-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px 16px;
+    min-width: 0;
+    padding: 15px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.due-card-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.due-family-name {
+    display: block;
+    min-width: 0;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.due-period {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Importes */
+
+.due-card-amounts {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    padding: 11px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.due-card-amounts > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.due-card-amounts span {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.due-card-amounts strong {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.due-card-amounts .due-debt-amount strong {
+    color: var(--orange);
+}
+
+/* Botones de estado */
+
+.due-status-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 104px;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    transition: background 150ms ease, transform 150ms ease;
+}
+
+.due-status-button.pending {
+    border-color: var(--orange);
+    background: var(--orange-bg);
+    color: var(--orange);
+}
+
+.due-status-button.debt {
+    border-color: #d97777;
+    background: #fbe8e8;
+    color: #a83232;
+}
+
+.due-status-button.paid {
+    border-color: var(--green);
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+.due-status-button:active {
+    transform: scale(0.96);
+}
+
+/* =====================================================
+   TARJETAS DE CUOTAS — MIEMBROS
+   ===================================================== */
+
+.member-due-card,
+.member-history-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.member-due-details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.member-due-details strong {
+    color: #966020;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* Estados de cuotas de miembros */
+
+.member-status-badge.debt {
+    border-color: #c58a45;
+    background: #fbf0df;
+    color: #966020;
+}
+
+/* Estados vacíos */
+
+.empty-state {
+    padding: 36px 18px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 20px;
+}
+
+.empty-state h3 {
+    margin-bottom: 5px;
+    font-size: 17px;
+}
+
+.empty-state p {
+    margin-bottom: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* =====================================================
+   TOAST — MENSAJES
+   ===================================================== */
+
+.toast {
+    position: fixed;
+    z-index: 300;
+    right: 16px;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    left: 16px;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 13px 16px;
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-radius: 12px;
+    background: var(--primary-dark);
+    color: #fff;
+    box-shadow: var(--shadow-md);
+    font-size: 13px;
+    font-weight: 650;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =====================================================
+   MODALES GENERALES
+   ===================================================== */
+
+.modal-overlay {
+    position: fixed;
+    z-index: 200;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-top: 20px;
+    background: rgb(35 27 22 / 48%);
+    backdrop-filter: blur(3px);
+}
+
+.modal-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: 92vh;
+    max-height: 92dvh;
+    overflow-y: auto;
+    padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
+    border-radius: 22px 22px 0 0;
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
+    overscroll-behavior: contain;
+}
+
+.modal-handle {
+    width: 38px;
+    height: 4px;
+    margin: -12px auto 20px;
+    border-radius: 999px;
+    background: var(--border);
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.modal-header h2 {
+    margin-bottom: 5px;
+    font-size: 21px;
+}
+
+.modal-header p {
+    margin-bottom: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.modal-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 22px;
+}
+
+/* Formularios de los modales */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 17px;
+}
+
+.form-group label {
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 16px;
+}
+
+.form-group textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.modal-actions .button {
+    flex: 1;
+    min-height: 48px;
+}
+
+/* =====================================================
+   FAMILIAS DESPLEGABLES
+   ===================================================== */
+
+.family-management-card {
+    border: 1px solid #d6c8b8 !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    margin-bottom: 14px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.family-management-header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 18px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.family-management-header:hover {
+    background: var(--surface-alt);
+}
+
+.family-management-info {
+    min-width: 0;
+}
+
+.family-management-header h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.family-management-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.family-management-header-right {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 15px;
+}
+
+.family-management-amount {
+    font-size: 20px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.family-dropdown-arrow {
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid var(--text-muted);
+    border-bottom: 2px solid var(--text-muted);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.family-management-header[aria-expanded="true"] .family-dropdown-arrow {
+    transform: rotate(225deg);
+}
+
+.family-management-details {
+    padding: 0 18px 18px;
+}
+
+.family-management-details[hidden] {
+    display: none;
+}
+
+.family-management-members {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.family-member-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+}
+
+.family-management-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.family-management-footer .button {
+    min-height: 44px;
+}
+
+
+/* =====================================================
+    MENÚ DE USUARIO
+   ===================================================== */
+
+/* MENÚ DE USUARIO */
+.user-menu-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Botón del avatar */
+#user-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+}
+
+#user-menu-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+#user-menu-button:focus-visible {
+    outline: 3px solid rgb(137 107 86 / 35%);
+    outline-offset: 3px;
+}
+
+/* Desplegable */
+.user-menu {
+    position: absolute;
+    z-index: 200;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 250px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition:
+        opacity .18s ease,
+        transform .18s ease,
+        visibility .18s ease;
+}
+
+/* Menú abierto */
+.user-menu-container.open .user-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Información del usuario */
+.user-menu-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    overflow: hidden;
+}
+
+.user-menu-info strong {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.user-menu-info span {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Separador */
+.user-menu-divider {
+    height: 1px;
+    margin: 4px 0;
+    background: var(--border);
+}
+
+/* Cerrar sesión */
+.user-menu-logout {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--red);
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background .2s ease;
+}
+
+.user-menu-logout:hover {
+    background: var(--red-bg);
+}
+
+/* Ajustes para móvil */
+@media (max-width: 700px) {
+    .user-menu {
+        width: 235px;
+    }
+}
+
+/* =====================================================
+   EDITOR DE MIEMBROS
+   ===================================================== */
+
+#manage-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.member-edit-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    gap: 10px;
+    padding: 13px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--background);
+}
+
+.member-edit-row .form-group {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.member-name-field {
+    grid-column: 1 / -1;
+    padding-right: 28px;
+}
+
+.member-edit-row .form-group label {
+    font-size: 11px;
+}
+
+.member-edit-row .form-group input,
+.member-edit-row .form-group select {
+    min-width: 0;
+    min-height: 44px;
+    padding: 9px;
+    font-size: 16px;
+}
+
+.member-remove-button {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--red);
+    font-size: 20px;
+}
+
+.family-edit-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 17px;
+    padding: 16px;
+    border: 1px solid #D8C5B5;
+    border-radius: 12px;
+    background: var(--surface-alt);
+}
+
+.family-edit-total span {
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.family-edit-total strong {
+    font-size: 20px;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+}
+
+.form-help {
+    margin-top: 12px;
+    margin-bottom: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* =====================================================
+   MODAL DE FILTROS DEL HISTORIAL
+   ===================================================== */
+
+.audit-filter-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border: 1px solid #ded2c5;
+    border-radius: 10px;
+    background: var(--primary-light);
+    color: var(--background);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.audit-filter-toggle:hover {
+    background: #f8f4ef;
+    border-color: #b99b7c;
+    color: var(--primary-dark);
+}
+
+.audit-filter-toggle strong,
+.audit-filter-toggle small {
+    display: block;
+    transition: color 0.2s ease;
+}
+
+.audit-filter-toggle strong {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    color: inherit;
+}
+
+.audit-filter-toggle small {
+    color: var(--orange-bg);
+    font-size: 0.82rem;
+}
+
+.audit-filter-toggle:hover small {
+    color: var(--primary);
+}
+
+.audit-filter-arrow {
+    font-size: 1.4rem;
+    color: #8b7055;
+    transition: transform 0.2s ease;
+}
+
+.audit-filter-toggle[aria-expanded="true"] .audit-filter-arrow {
+    transform: rotate(180deg);
+}
+
+.audit-results-summary[hidden],
+.audit-filter-modal[hidden] {
+    display: none !important;
+}
+
+.audit-filter-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.audit-filter-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(35, 27, 20, 0.62);
+    backdrop-filter: blur(3px);
+}
+
+.audit-filter-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 720px);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e3d8cc;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+    animation: auditModalIn 0.2s ease;
+}
+
+/* Cabecera */
+
+.audit-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 22px 26px;
+    border-bottom: 1px solid #e9e1d8;
+    background: #fcfaf8;
+}
+
+.audit-modal-header h3 {
+    margin: 0 0 5px;
+    color: #49382b;
+    font-size: 1.15rem;
+}
+
+.audit-modal-header p {
+    margin: 0;
+    color: #897969;
+    font-size: 0.88rem;
+}
+
+.audit-modal-close {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #f0e9e1;
+    color: #5b4938;
+    font-size: 25px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.audit-modal-close:hover {
+    background: #e3d5c7;
+}
+
+/* Contenido desplazable */
+
+.audit-filter-content {
+    overflow-y: auto;
+    padding: 24px 26px;
+    scrollbar-width: thin;
+    scrollbar-color: #c9b8a6 #f5f1ec;
+}
+
+.audit-filter-group {
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid #eee7df;
+}
+
+.audit-filter-group:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.audit-filter-group h4 {
+    margin: 0 0 14px;
+    color: #5a4432;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+/* Casillas */
+
+.audit-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px 20px;
+}
+
+.audit-checkbox-grid label,
+.audit-family-options label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #625447;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.audit-checkbox-grid input,
+.audit-family-options input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #806044;
+    cursor: pointer;
+}
+
+.audit-checkbox-grid label:hover,
+.audit-family-options label:hover {
+    color: #49382b;
+}
+
+/* Familias */
+
+.audit-family-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+}
+
+/* Fechas */
+
+.audit-date-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.audit-date-fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #625447;
+    font-size: 0.85rem;
+}
+
+.audit-date-fields input {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #ded2c5;
+    border-radius: 7px;
+    background: #fff;
+    color: #49382b;
+    font: inherit;
+}
+
+/* Accesos rápidos */
+
+.audit-date-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.audit-date-shortcuts button {
+    padding: 8px 12px;
+    border: 1px solid #ded2c5;
+    border-radius: 20px;
+    background: #f8f4ef;
+    color: #72583f;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.audit-date-shortcuts button:hover {
+    border-color: #a88a6b;
+    background: #eee4d9;
+}
+
+/* Pie */
+
+.audit-filter-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 17px 26px;
+    border-top: 1px solid var(--border);
+    background: #fcfaf8;
+}
+
+/* Animación */
+
+@keyframes auditModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* =====================================================
+   RESPONSIVE DE COMPONENTES
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+    .due-card {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .due-family-name {
+        font-size: 13px;
+    }
+
+    .due-card-amounts {
+        gap: 10px 16px;
+    }
+
+    .due-card-amounts strong {
+        font-size: 13px;
+    }
+
+    .due-status-button {
+        min-width: 94px;
+        min-height: 40px;
+        padding: 0 9px;
+        font-size: 10px;
+    }
+}
+
+@media (min-width: 700px) {
+    .dues-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+
+    .modal-overlay {
+        align-items: center;
+        padding: 20px;
+    }
+
+    .modal-panel {
+        max-height: 88vh;
+        max-height: 88dvh;
+        border-radius: 22px;
+        padding: 26px;
+    }
+
+    .modal-handle {
+        display: none;
+    }
+
+    .family-management-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+
+    .member-edit-row {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 0.7fr);
+    }
+
+    .member-name-field {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 520px) {
+    .family-management-header {
+        padding: 15px;
+    }
+
+    .family-management-header-right {
+        gap: 10px;
+    }
+
+    .family-management-amount {
+        font-size: 17px;
+    }
+
+    .family-management-details {
+        padding: 0 15px 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    .audit-filter-modal {
+        padding: 10px;
+    }
+
+    .audit-filter-dialog {
+        max-height: 92vh;
+        border-radius: 12px;
+    }
+
+    .audit-modal-header,
+    .audit-filter-content {
+        padding: 18px;
+    }
+
+    .audit-filter-actions {
+        padding: 14px 18px;
+    }
+
+    .audit-checkbox-grid,
+    .audit-family-options,
+    .audit-date-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .audit-filter-actions button {
+        flex: 1;
+    }
+}

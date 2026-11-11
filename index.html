@@ -11,7 +11,10 @@
 <link rel="manifest" href="./manifest.json">
 <title>CESPlus | Café en Sal</title>
 
-<link rel="stylesheet" href="styles/styles.css">
+<link rel="stylesheet" href="./styles/styles.css">
+<link rel="stylesheet" href="./styles/layout.css">
+<link rel="stylesheet" href="./styles/components.css">
+<link rel="stylesheet" href="./styles/views.css">
 <script type="module" src="js/app.js"></script>
 
 
@@ -340,23 +343,44 @@
                     </select>
                 </div>
 
-                <div class="user-info">
-                    <div class="avatar">C+</div>
+                <div class="user-menu-container">
 
-                    <div class="user-details">
-                        <strong>Usuario</strong>
-                        <span>Rol</span>
+                    <button
+                        type="button"
+                        id="user-menu-button"
+                        class="avatar"
+                        aria-label="Abrir menú de usuario"
+                        aria-expanded="false"
+                        aria-controls="user-menu"
+                    >
+                        C+
+                    </button>
+
+                    <div id="user-menu" class="user-menu">
+
+                        <div class="user-menu-info">
+
+                            <strong id="user-menu-name">Usuario</strong>
+
+                            <span id="user-menu-email"></span>
+
+                            <span id="user-menu-role">Miembro</span>
+
+                        </div>
+
+                        <div class="user-menu-divider"></div>
+
+                        <button
+                            type="button"
+                            id="logout-button"
+                            class="user-menu-logout"
+                        >
+                            Cerrar sesión
+                        </button>
+
                     </div>
-                </div>
 
-                <button
-                    type="button"
-                    id="logout-button"
-                    class="button button-secondary logout-button"
-                    title="Cerrar sesión"
-                >
-                    Cerrar sesión
-                </button>
+                </div>
 
             </div>
         </header>
@@ -370,9 +394,6 @@
                     <h2>Estado de las cuentas.</h2>
                 </div>
 
-                <span class="demo-badge" data-role="admin,treasurer">
-                    DATOS DE PRUEBA
-                </span>
             </div>
 
             <!-- INDICADORES GLOBALES -->
@@ -433,25 +454,19 @@
                                 Consulta y registra las cuotas de cada familia.
                             </p>
                         </div>
-
-                        <button
-                            class="button button-secondary"
-                            id="show-all-dues">
-                            Ver todas
-                        </button>
                     </div>
 
                     <div class="filter-row">
-                        <button class="filter-chip active" data-filter="todas">
-                            Todas
-                        </button>
-
-                        <button class="filter-chip" data-filter="pendiente">
+                        <button class="filter-chip active" data-filter="pendiente">
                             Pendientes
                         </button>
 
                         <button class="filter-chip" data-filter="pagado">
                             Abonadas
+                        </button>
+
+                        <button class="filter-chip" data-filter="todas">
+                            Todas
                         </button>
                     </div>
 

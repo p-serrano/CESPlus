@@ -18,7 +18,9 @@ import {
     getMonthMetrics,
     getCurrentBalance,
     setCurrentPeriod,
-    showToast
+    showToast,
+    getDueReceived,
+    getDueDebt
 } from "../core.js";
 
 import {
@@ -30,7 +32,7 @@ import {
 // CONFIGURACIÓN Y ESTADO
 // =====================================================
 
-let selectedDashboardPeriod = getCurrentPeriod();
+let selectedDashboardPeriod = "all";
 
 const globalMetricsCache = new Map();
 
@@ -65,6 +67,21 @@ function formatDate(date) {
         month: "2-digit",
         year: "numeric"
     }).format(parsedDate);
+}
+
+
+function formatCompactPeriod(period) {
+    const [year, month] = period.split("-").map(Number);
+
+    const monthName = new Intl.DateTimeFormat("es-ES", {
+        month: "short"
+    }).format(new Date(year, month - 1, 1));
+
+    const capitalizedMonth =
+        monthName.charAt(0).toLocaleUpperCase("es") +
+        monthName.slice(1).replace(".", "");
+
+    return `${capitalizedMonth} ${String(year).slice(-2)}`;
 }
 
 
@@ -154,14 +171,6 @@ export function getSelectedDashboardPeriod() {
 
 export function setSelectedDashboardPeriod(period) {
     selectedDashboardPeriod = period;
-
-    if (period === "all") {
-        // Los indicadores globales seguirán mostrando
-        // el mes actual cuando se seleccionen todos.
-        setCurrentPeriod(getCurrentPeriod());
-    } else {
-        setCurrentPeriod(period);
-    }
 }
 
 
@@ -176,7 +185,7 @@ export function renderPeriodSelect() {
         selectedDashboardPeriod !== "all" &&
         !periods.includes(selectedDashboardPeriod)
     ) {
-        selectedDashboardPeriod = getCurrentPeriod();
+        selectedDashboardPeriod = "all";
     }
 
     const options = [
@@ -189,7 +198,7 @@ export function renderPeriodSelect() {
         ...periods.map(period => `
             <option value="${period}"
                 ${period === selectedDashboardPeriod ? "selected" : ""}>
-                ${escapeHTML(periodLabel(period))}
+                ${escapeHTML(formatCompactPeriod(period))}
             </option>
         `)
     ];
@@ -244,7 +253,9 @@ function renderStaffSummary() {
 
     if (description) {
         description.textContent =
-            `Cuotas de ${periodLabel(currentPeriod)}.`;
+            selectedDashboardPeriod === "all"
+                ? "Cuotas de todos los meses."
+                : `Cuotas de ${periodLabel(selectedDashboardPeriod)}.`;
     }
 
     document.querySelector(".sidebar-footer span:last-child")
@@ -329,51 +340,133 @@ export function renderDues() {
 
     if (!list || !empty) return;
 
-    let dues = getDuesForPeriod(currentPeriod)
+    // Obtener cuotas del periodo seleccionado.
+    let dues = selectedDashboardPeriod === "all"
+        ? [...data.dues]
+        : getDuesForPeriod(selectedDashboardPeriod);
+
+    dues = dues
         .map(due => ({
             ...due,
             family: getFamily(due.familyId)
         }))
         .filter(due => due.family?.active);
 
-    if (currentFilter !== "todas") {
-        dues = dues.filter(
-            due => due.status === currentFilter
+    // Aplicar filtros de estado.
+    if (
+        currentFilter === "pendiente" ||
+        currentFilter === "pendientes"
+    ) {
+        dues = dues.filter(due =>
+            due.status === "pendiente" ||
+            due.status === "deuda"
         );
     }
 
+    if (
+        currentFilter === "pagado" ||
+        currentFilter === "pagados"
+    ) {
+        dues = dues.filter(
+            due => due.status === "pagado"
+        );
+    }
+
+    // Orden: pendientes, deudas y pagadas.
+    const statusOrder = {
+        pendiente: 0,
+        deuda: 1,
+        pagado: 2
+    };
+
     dues.sort((a, b) => {
-        if (a.status !== b.status) {
-            return a.status === "pendiente" ? -1 : 1;
+        const statusDifference =
+            statusOrder[a.status] - statusOrder[b.status];
+
+        if (statusDifference !== 0) {
+            return statusDifference;
         }
 
-        return a.family.name.localeCompare(
-            b.family.name,
-            "es"
-        );
+        // Primero por periodo más reciente.
+        const periodDifference =
+            b.period.localeCompare(a.period);
+
+        if (periodDifference !== 0) {
+            return periodDifference;
+        }
+
+        return a.family.name.localeCompare(b.family.name, "es");
     });
 
     list.innerHTML = dues.map(due => {
+
         const paid = due.status === "pagado";
+        const partial = due.status === "deuda";
+
+        const received = getDueReceived(due);
+        const debt = getDueDebt(due);
+
+        const statusClass = paid
+            ? "paid"
+            : partial
+                ? "debt"
+                : "pending";
+
+        const statusLabel = paid
+            ? "Abonada"
+            : partial
+                ? "Deuda"
+                : "Pendiente";
+
+        const buttonLabel = paid
+            ? "Cuota abonada"
+            : partial
+                ? "Completar pago"
+                : "Registrar ingreso";
 
         return `
             <article class="due-card">
 
-                <span class="due-family-name">
-                    ${escapeHTML(due.family.name)}
-                </span>
+                <div class="due-card-main">
 
-                <strong class="due-amount">
-                    ${money(due.expectedCents)}
-                </strong>
+                    <span class="due-family-name">
+                        ${escapeHTML(due.family.name)}
+                    </span>
+
+                    <span class="due-period">
+                        ${escapeHTML(periodLabel(due.period))}
+                    </span>
+
+                </div>
+
+                <div class="due-card-amounts">
+
+                    <div>
+                        <span>Esperado</span>
+                        <strong>${money(due.expectedCents)}</strong>
+                    </div>
+
+                    <div>
+                        <span>Recibido</span>
+                        <strong>${money(received)}</strong>
+                    </div>
+
+                    ${!paid ? `
+                        <div class="due-debt-amount">
+                            <span>Pendiente</span>
+                            <strong>${money(debt)}</strong>
+                        </div>
+                    ` : ""}
+
+                </div>
 
                 <button
-                    class="due-status-button ${paid ? "paid" : "pending"}"
+                    class="due-status-button ${statusClass}"
                     data-action="cambiar-estado"
                     data-due-id="${escapeHTML(due.id)}"
-                    aria-label="${paid ? "Cuota abonada" : "Registrar ingreso"}">
+                    aria-label="${buttonLabel}">
 
-                    ${paid ? "Abonada" : "Pendiente"}
+                    ${statusLabel}
 
                 </button>
 
@@ -447,7 +540,24 @@ function renderMemberCurrentDue() {
     }
 
     container.innerHTML = dues.map(due => {
+
         const paid = due.status === "pagado";
+        const partial = due.status === "deuda";
+
+        const received = getDueReceived(due);
+        const debt = getDueDebt(due);
+
+        const statusClass = paid
+            ? "paid"
+            : partial
+                ? "debt"
+                : "pending";
+
+        const statusLabel = paid
+            ? "Abonada"
+            : partial
+                ? "Deuda"
+                : "Pendiente";
 
         return `
             <article class="member-due-card">
@@ -470,11 +580,18 @@ function renderMemberCurrentDue() {
                         ${money(due.expectedCents)}
                     </strong>
 
-                    <span class="member-status-badge ${paid ? "paid" : "pending"}">
-                        ${paid ? "Pagado" : "Pendiente"}
+                    <span class="member-status-badge ${statusClass}">
+                        ${statusLabel}
                     </span>
 
                 </div>
+
+                ${partial ? `
+                    <div class="member-due-details">
+                        <span>Recibido: ${money(received)}</span>
+                        <strong>Pendiente: ${money(debt)}</strong>
+                    </div>
+                ` : ""}
 
             </article>
         `;
@@ -557,7 +674,24 @@ function renderMemberDuesHistory() {
     }
 
     container.innerHTML = dues.map(due => {
+
         const paid = due.status === "pagado";
+        const partial = due.status === "deuda";
+
+        const received = getDueReceived(due);
+        const debt = getDueDebt(due);
+
+        const statusClass = paid
+            ? "paid"
+            : partial
+                ? "debt"
+                : "pending";
+
+        const statusLabel = paid
+            ? "Abonada"
+            : partial
+                ? "Deuda"
+                : "Pendiente";
 
         return `
             <article class="member-history-item">
@@ -580,11 +714,18 @@ function renderMemberDuesHistory() {
                         ${money(due.expectedCents)}
                     </strong>
 
-                    <span class="member-status-badge ${paid ? "paid" : "pending"}">
-                        ${paid ? "Pagado" : "Pendiente"}
+                    <span class="member-status-badge ${statusClass}">
+                        ${statusLabel}
                     </span>
 
                 </div>
+
+                ${partial ? `
+                    <div class="member-due-details">
+                        <span>Recibido: ${money(received)}</span>
+                        <strong>Pendiente: ${money(debt)}</strong>
+                    </div>
+                ` : ""}
 
             </article>
         `;

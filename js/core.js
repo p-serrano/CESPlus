@@ -30,7 +30,7 @@ export function setData(newData) {
 }
 
 export let currentView = "inicio";
-export let currentFilter = "todas";
+export let currentFilter = "pendiente";
 export let currentPeriod = getCurrentPeriod();
 
 export let toastTimer = null;
@@ -211,6 +211,29 @@ export function load() {
 }
 
 /* -------------------------------------------------
+   CÁLCULOS DE CUOTAS
+   ------------------------------------------------- */
+
+export function getDueReceived(due) {
+    const received = Number(due?.receivedCents ?? 0);
+
+    return Number.isSafeInteger(received) && received >= 0
+        ? received
+        : 0;
+}
+
+export function getDueDebt(due) {
+    const expected = Number(due?.expectedCents);
+    const received = getDueReceived(due);
+
+    if (!Number.isSafeInteger(expected) || expected < 0) {
+        return 0;
+    }
+
+    return Math.max(0, expected - received);
+}
+
+/* -------------------------------------------------
    ACCESO A FAMILIAS Y CUOTAS
    ------------------------------------------------- */
 
@@ -262,7 +285,7 @@ export function ensurePeriodDues(period) {
                 familyId: family.id,
                 period,
                 expectedCents,
-                receivedCents: 0,
+                receivedCents: null,
                 status: "pendiente",
                 paidAt: null,
                 justification: ""
@@ -279,28 +302,22 @@ export function ensurePeriodDues(period) {
 export function getMonthMetrics(period) {
     const dues = getDuesForPeriod(period);
 
-    const income = dues.reduce((total, due) => {
-        if (due.status !== "pagado") return total;
+    // Ingresos reales, incluidos los pagos parciales.
+    const income = dues.reduce(
+        (total, due) => total + getDueReceived(due),
+        0
+    );
 
-        const amount = Number(due.receivedCents);
-
-        return total + (
-            Number.isSafeInteger(amount) && amount >= 0
-                ? amount
-                : 0
-        );
-    }, 0);
-
+    // Deuda pendiente: importe esperado menos lo recibido.
     const pending = dues.reduce((total, due) => {
-        if (due.status !== "pendiente") return total;
+        if (
+            due.status !== "pendiente" &&
+            due.status !== "deuda"
+        ) {
+            return total;
+        }
 
-        const amount = Number(due.expectedCents);
-
-        return total + (
-            Number.isSafeInteger(amount) && amount >= 0
-                ? amount
-                : 0
-        );
+        return total + getDueDebt(due);
     }, 0);
 
     const expenses = data.expenses
@@ -322,8 +339,10 @@ export function getMonthMetrics(period) {
         income,
         pending,
         expenses,
-        pendingCount: dues.filter(
-            due => due.status === "pendiente"
+
+        pendingCount: dues.filter(due =>
+            due.status === "pendiente" ||
+            due.status === "deuda"
         ).length
     };
 }
@@ -337,17 +356,11 @@ export function getCurrentBalance() {
             ? openingBalance
             : 0;
 
-    const income = data.dues.reduce((total, due) => {
-        if (due.status !== "pagado") return total;
-
-        const amount = Number(due.receivedCents);
-
-        return total + (
-            Number.isSafeInteger(amount) && amount >= 0
-                ? amount
-                : 0
-        );
-    }, 0);
+    // Todos los ingresos realmente recibidos.
+    const income = data.dues.reduce(
+        (total, due) => total + getDueReceived(due),
+        0
+    );
 
     const expenses = data.expenses.reduce((total, expense) => {
         const amount = Number(expense.amountCents);

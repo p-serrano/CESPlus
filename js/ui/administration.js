@@ -779,23 +779,6 @@ export function renderAdministration() {
 
         </section>
 
-        <section class="admin-section admin-danger-section">
-
-            <div class="admin-section-heading">
-                <div>
-                    <h3>Datos de demostración</h3>
-                    <p>Restablece los datos de ejemplo de la aplicación.</p>
-                </div>
-            </div>
-
-            <button
-                type="button"
-                class="button button-danger"
-                data-action="reset-demo">
-                Restablecer datos de demostración
-            </button>
-
-        </section>
     `;
 
     renderAuditLog();

@@ -1,6 +1,20 @@
 import { supabase } from "../supabase-client.js";
 
 /**
+ * Convierte los estados de Supabase al modelo de CESPlus.
+ */
+function mapDueStatus(status) {
+    switch (status) {
+        case "paid":
+            return "pagado";
+        case "partial":
+            return "deuda";
+        default:
+            return "pendiente";
+    }
+}
+
+/**
  * Carga los datos de CESPlus desde Supabase
  * y los adapta al modelo utilizado por la interfaz.
  */
@@ -66,7 +80,7 @@ export async function loadSupabaseData(profile) {
         period: due.period.slice(0, 7),
         expectedCents: due.expected_amount_cents,
         receivedCents: due.received_amount_cents || 0,
-        status: due.status === "paid" ? "pagado" : "pendiente",
+        status: mapDueStatus(due.status),
         paidAt: due.paid_at,
         justification: due.justification
     }));
@@ -123,7 +137,13 @@ export async function loadSupabaseData(profile) {
 }
 
 /**
- * Registrar un pago en Supabase.
+ * Registrar un pago completo o parcial en Supabase.
+ *
+ * amountCents representa el importe TOTAL recibido
+ * hasta ese momento, no solamente el nuevo ingreso.
+ *
+ * La actualización comprueba que la cuota no haya cambiado
+ * desde que se leyó, evitando sobrescribir otro ingreso.
  */
 export async function savePayment(dueId, amountCents) {
     const { data: authData, error: authError } =
@@ -133,23 +153,191 @@ export async function savePayment(dueId, amountCents) {
         throw new Error("No se ha podido identificar al usuario.");
     }
 
-    const { data, error } = await supabase
+    if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+        throw new Error("El importe recibido debe ser superior a cero.");
+    }
+
+    const { data: due, error: dueError } = await supabase
+        .from("monthly_dues")
+        .select("*")
+        .eq("id", dueId)
+        .maybeSingle();
+
+    if (dueError) throw dueError;
+
+    if (!due) {
+        throw new Error("No se ha encontrado la cuota.");
+    }
+
+    if (!["pending", "partial"].includes(due.status)) {
+        throw new Error("Esta cuota ya está abonada o no se puede modificar.");
+    }
+
+    const previousReceived = due.received_amount_cents || 0;
+
+    if (
+        amountCents <= previousReceived ||
+        amountCents > due.expected_amount_cents
+    ) {
+        throw new Error(
+            "El importe total recibido debe ser superior al anterior " +
+            "y no puede superar la cuota esperada."
+        );
+    }
+
+    const newStatus = amountCents === due.expected_amount_cents
+        ? "paid"
+        : "partial";
+
+    let query = supabase
         .from("monthly_dues")
         .update({
-            status: "paid",
+            status: newStatus,
             received_amount_cents: amountCents,
-            paid_at: new Date().toISOString(),
-            paid_by: authData.user.id
+            paid_at: due.paid_at || new Date().toISOString(),
+            paid_by: due.paid_by || authData.user.id,
+            updated_at: new Date().toISOString()
         })
         .eq("id", dueId)
-        .eq("status", "pending")
+        .eq("status", due.status)
+        .eq("expected_amount_cents", due.expected_amount_cents);
+
+    // Comparar también el importe recibido anterior.
+    if (due.received_amount_cents === null) {
+        query = query.is("received_amount_cents", null);
+    } else {
+        query = query.eq(
+            "received_amount_cents",
+            due.received_amount_cents
+        );
+    }
+
+    const { data, error } = await query
         .select()
         .maybeSingle();
 
     if (error) throw error;
 
     if (!data) {
-        throw new Error("La cuota ya no está pendiente o no tienes permiso.");
+        throw new Error(
+            "La cuota ha cambiado mientras registrabas el ingreso. " +
+            "Recarga los datos e inténtalo de nuevo."
+        );
+    }
+
+    return data;
+}
+
+
+/**
+ * Modificar el importe esperado y la justificación de una cuota.
+ *
+ * Conserva el dinero recibido y recalcula el estado.
+ */
+export async function updateDueExpected(
+    dueId,
+    expectedAmountCents,
+    justification
+) {
+    if (
+        !Number.isSafeInteger(expectedAmountCents) ||
+        expectedAmountCents < 0
+    ) {
+        throw new Error("El importe esperado no es válido.");
+    }
+
+    const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+    if (authError || !authData.user) {
+        throw new Error("No se ha podido identificar al usuario.");
+    }
+
+    const { data: due, error: dueError } = await supabase
+        .from("monthly_dues")
+        .select("*")
+        .eq("id", dueId)
+        .maybeSingle();
+
+    if (dueError) throw dueError;
+
+    if (!due) {
+        throw new Error("No se ha encontrado la cuota.");
+    }
+
+    if (due.status === "paid") {
+        throw new Error("No se puede modificar una cuota abonada.");
+    }
+
+    const receivedCents = due.received_amount_cents || 0;
+
+    if (expectedAmountCents < receivedCents) {
+        throw new Error(
+            "El importe esperado no puede ser inferior " +
+            "al dinero que ya se ha recibido."
+        );
+    }
+
+    // Determinar el estado final.
+    let newStatus;
+    let newReceived;
+    let newPaidAt;
+    let newPaidBy;
+
+    if (receivedCents === 0) {
+        newStatus = "pending";
+        newReceived = null;
+        newPaidAt = null;
+        newPaidBy = null;
+
+    } else if (receivedCents === expectedAmountCents) {
+        newStatus = "paid";
+        newReceived = receivedCents;
+        newPaidAt = due.paid_at || new Date().toISOString();
+        newPaidBy = due.paid_by || authData.user.id;
+
+    } else {
+        newStatus = "partial";
+        newReceived = receivedCents;
+        newPaidAt = due.paid_at || new Date().toISOString();
+        newPaidBy = due.paid_by || authData.user.id;
+    }
+
+    let query = supabase
+        .from("monthly_dues")
+        .update({
+            expected_amount_cents: expectedAmountCents,
+            received_amount_cents: newReceived,
+            status: newStatus,
+            paid_at: newPaidAt,
+            paid_by: newPaidBy,
+            justification: String(justification || "").trim(),
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", dueId)
+        .eq("status", due.status)
+        .eq("expected_amount_cents", due.expected_amount_cents);
+
+    if (due.received_amount_cents === null) {
+        query = query.is("received_amount_cents", null);
+    } else {
+        query = query.eq(
+            "received_amount_cents",
+            due.received_amount_cents
+        );
+    }
+
+    const { data, error } = await query
+        .select()
+        .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+        throw new Error(
+            "La cuota ha cambiado mientras la modificabas. " +
+            "Recarga los datos e inténtalo de nuevo."
+        );
     }
 
     return data;
@@ -166,7 +354,8 @@ export async function reversePayment(dueId) {
             status: "pending",
             received_amount_cents: null,
             paid_at: null,
-            paid_by: null
+            paid_by: null,
+            updated_at: new Date().toISOString()
         })
         .eq("id", dueId)
         .eq("status", "paid")
@@ -319,7 +508,7 @@ export async function createFamilyWithMembers(
             period: dueRow.period.slice(0, 7),
             expectedCents: dueRow.expected_amount_cents,
             receivedCents: dueRow.received_amount_cents,
-            status: "pendiente",
+            status: mapDueStatus(dueRow.status),
             paidAt: dueRow.paid_at,
             justification: dueRow.justification
         }
@@ -402,7 +591,7 @@ export async function updateFamilyWithMembers(
             period: dueRow.period.slice(0, 7),
             expectedCents: dueRow.expected_amount_cents,
             receivedCents: dueRow.received_amount_cents,
-            status: dueRow.status === "paid" ? "pagado" : "pendiente",
+            status: mapDueStatus(dueRow.status),
             paidAt: dueRow.paid_at,
             justification: dueRow.justification
         } : null

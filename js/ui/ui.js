@@ -35,6 +35,7 @@ import { renderAdministration } from "./administration.js";
 
 import {
     closeModal,
+    openModal,
     confirmAction
 } from "./modals.js";
 
@@ -53,16 +54,67 @@ async function handlePaymentStatus(dueId) {
         return;
     }
 
+    // -----------------------------------------------
+    // CUOTA PENDIENTE: elegir tipo de ingreso
+    // -----------------------------------------------
+
     if (result.action === "payment") {
-        const paymentResult = await confirmPayment(dueId);
+        openModal(`
+            <div class="modal-header">
+                <div>
+                    <h2>Registrar ingreso</h2>
+                    <p>¿El ingreso de esta cuota es completo?</p>
+                </div>
 
-        if (paymentResult.ok) {
-            renderAll();
-        }
+                <button
+                    class="modal-close"
+                    type="button"
+                    data-action="cerrar-modal"
+                    aria-label="Cerrar">
+                    ×
+                </button>
+            </div>
 
-        showToast(paymentResult.message);
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    data-action="iniciar-pago-parcial"
+                    data-due-id="${dueId}">
+                    No, es parcial
+                </button>
+
+                <button
+                    type="button"
+                    class="button button-primary"
+                    data-action="iniciar-pago-completo"
+                    data-due-id="${dueId}">
+                    Sí, es completo
+                </button>
+            </div>
+        `);
+
         return;
     }
+
+    // -----------------------------------------------
+    // CUOTA CON DEUDA: completar importe restante
+    // -----------------------------------------------
+
+    if (result.action === "complete-payment") {
+        confirmAction(
+            result.title,
+            result.description,
+            result.confirmLabel,
+            `confirmar-completar-pago:${dueId}`
+        );
+
+        return;
+    }
+
+    // -----------------------------------------------
+    // CUOTA PAGADA: anular ingreso
+    // -----------------------------------------------
 
     if (result.action === "reversal") {
         confirmAction(
@@ -183,13 +235,7 @@ export function init({ supabase = false } = {}) {
 
         // Cambio de periodo desde el selector.
         onPeriodChange: period => {
-
             setSelectedDashboardPeriod(period);
-
-            if (period !== "all") {
-                setCurrentPeriod(period);
-            }
-
             renderAll();
         }
 

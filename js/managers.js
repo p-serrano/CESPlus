@@ -19,6 +19,7 @@ import {
 import {
     savePayment,
     reversePayment,
+    updateDueExpected,
     saveExpense,
     removeExpense,
     createFamilyWithMembers,
@@ -162,6 +163,13 @@ export function saveAdminSettings(form) {
    CUOTAS E INGRESOS
    ------------------------------------------------- */
 
+/**
+ * Cambiar el estado de una cuota.
+ *
+ * pendiente → iniciar registro de pago.
+ * deuda     → completar automáticamente el importe restante.
+ * pagado    → solicitar confirmación para anular el ingreso.
+ */
 export function toggleDueStatus(dueId) {
     const due = data.dues.find(item => item.id === dueId);
 
@@ -181,6 +189,13 @@ export function toggleDueStatus(dueId) {
         };
     }
 
+    const receivedCents = due.receivedCents || 0;
+    const debtCents = Math.max(
+        0,
+        due.expectedCents - receivedCents
+    );
+
+    // Cuota sin ningún ingreso.
     if (due.status === "pendiente") {
         return {
             ok: true,
@@ -190,22 +205,49 @@ export function toggleDueStatus(dueId) {
         };
     }
 
+    // Cuota con un ingreso parcial.
+    if (due.status === "deuda") {
+        return {
+            ok: true,
+            requiresConfirmation: true,
+            action: "complete-payment",
+            dueId,
+            title: "Completar pago",
+            description:
+                `La familia ${family.name} tiene pendiente ` +
+                `${money(debtCents)}. ¿Quieres registrar el importe restante?`,
+            confirmLabel: "Completar pago",
+            amountCents: due.expectedCents
+        };
+    }
+
+    // Cuota completamente abonada.
     return {
         ok: true,
         requiresConfirmation: true,
         action: "reversal",
         dueId,
         title: "Anular ingreso",
-        description: `La cuota de ${family.name} volverá a estar pendiente. Se descontarán ${money(due.receivedCents)} del saldo.`,
+        description:
+            `La cuota de ${family.name} volverá a estar pendiente. ` +
+            `Se descontarán ${money(receivedCents)} del saldo.`,
         confirmLabel: "Anular ingreso"
     };
 }
 
 
-export async function confirmPayment(dueId) {
+/**
+ * Registrar un pago completo o parcial.
+ *
+ * amountCents representa el TOTAL acumulado recibido.
+ *
+ * Si no se proporciona cantidad, se registra el importe
+ * necesario para completar la cuota.
+ */
+export async function confirmPayment(dueId, amountCents = null) {
     const due = data.dues.find(item => item.id === dueId);
 
-    if (!due || due.status !== "pendiente") {
+    if (!due || !["pendiente", "deuda"].includes(due.status)) {
         return {
             ok: false,
             message: "No se puede registrar este ingreso."
@@ -223,7 +265,7 @@ export async function confirmPayment(dueId) {
 
     if (
         !Number.isSafeInteger(due.expectedCents) ||
-        due.expectedCents < 0
+        due.expectedCents <= 0
     ) {
         return {
             ok: false,
@@ -231,19 +273,51 @@ export async function confirmPayment(dueId) {
         };
     }
 
+    const previousReceived = due.receivedCents || 0;
+
+    // Si no se indica importe, completar el pago.
+    const totalReceived = amountCents === null
+        ? due.expectedCents
+        : amountCents;
+
+    if (
+        !Number.isSafeInteger(totalReceived) ||
+        totalReceived <= previousReceived ||
+        totalReceived > due.expectedCents
+    ) {
+        return {
+            ok: false,
+            message:
+                "Introduce un importe superior al ya recibido " +
+                "y que no supere la cuota esperada."
+        };
+    }
+
     try {
         const result = await savePayment(
             due.id,
-            due.expectedCents
+            totalReceived
         );
 
-        due.status = "pagado";
-        due.receivedCents = result.received_amount_cents;
+        // Actualizar el estado local con la respuesta real.
+        due.receivedCents = result.received_amount_cents || 0;
+
+        due.status = result.status === "paid"
+            ? "pagado"
+            : result.status === "partial"
+                ? "deuda"
+                : "pendiente";
+
         due.paidAt = result.paid_at;
+
+        const remainingCents =
+            due.expectedCents - due.receivedCents;
 
         return {
             ok: true,
-            message: "Ingreso registrado correctamente."
+            message: due.status === "pagado"
+                ? "Ingreso registrado. La cuota está completamente abonada."
+                : `Pago parcial registrado. Quedan ${money(remainingCents)} pendientes.`
         };
 
     } catch (error) {
@@ -251,12 +325,16 @@ export async function confirmPayment(dueId) {
 
         return {
             ok: false,
-            message: error.message || "No se ha podido registrar el ingreso."
+            message: error.message ||
+                "No se ha podido registrar el ingreso."
         };
     }
 }
 
 
+/**
+ * Anular un pago completamente abonado.
+ */
 export async function revertPayment(dueId) {
     const due = data.dues.find(item => item.id === dueId);
 
@@ -276,7 +354,8 @@ export async function revertPayment(dueId) {
 
         return {
             ok: true,
-            message: "Ingreso anulado. La cuota vuelve a estar pendiente."
+            message:
+                "Ingreso anulado. La cuota vuelve a estar pendiente."
         };
 
     } catch (error) {
@@ -284,13 +363,20 @@ export async function revertPayment(dueId) {
 
         return {
             ok: false,
-            message: error.message || "No se ha podido anular el ingreso."
+            message: error.message ||
+                "No se ha podido anular el ingreso."
         };
     }
 }
 
 
-export function saveDueForm(form) {
+/**
+ * Modificar el importe esperado de una cuota.
+ *
+ * El importe recibido se conserva.
+ * La deuda y el estado se recalculan en Supabase.
+ */
+export async function saveDueForm(form) {
     const dueId = form.dataset.dueId;
     const due = data.dues.find(item => item.id === dueId);
 
@@ -320,15 +406,62 @@ export function saveDueForm(form) {
         };
     }
 
-    due.expectedCents = Math.round(amount * 100);
-    due.justification = justification;
+    const newExpectedCents = Math.round(amount * 100);
+    const receivedCents = due.receivedCents || 0;
 
-    save();
+    if (newExpectedCents < receivedCents) {
+        return {
+            ok: false,
+            message:
+                "El importe esperado no puede ser inferior " +
+                "al dinero que ya se ha recibido."
+        };
+    }
 
-    return {
-        ok: true,
-        message: "Cuota actualizada."
-    };
+    try {
+        const result = await updateDueExpected(
+            dueId,
+            newExpectedCents,
+            justification
+        );
+
+        // Actualizar el modelo local con la respuesta real.
+        due.expectedCents = result.expected_amount_cents;
+        due.receivedCents = result.received_amount_cents || 0;
+        due.justification = result.justification || "";
+        due.paidAt = result.paid_at;
+
+        switch (result.status) {
+            case "paid":
+                due.status = "pagado";
+                break;
+
+            case "partial":
+                due.status = "deuda";
+                break;
+
+            default:
+                due.status = "pendiente";
+        }
+
+        return {
+            ok: true,
+            message: due.status === "pagado"
+                ? "Cuota actualizada. La deuda ha quedado saldada."
+                : due.status === "deuda"
+                    ? "Cuota actualizada correctamente."
+                    : "Cuota actualizada correctamente."
+        };
+
+    } catch (error) {
+        console.error("Error actualizando la cuota:", error);
+
+        return {
+            ok: false,
+            message: error.message ||
+                "No se ha podido actualizar la cuota."
+        };
+    }
 }
 
 

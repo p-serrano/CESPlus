@@ -27,7 +27,6 @@ import {
     saveManageFamilyForm,
     deactivateFamilyManager,
     reactivateFamilyManager,
-    confirmReset,
     approveFamilyLinkManager,
     rejectFamilyLinkManager,
     generateFamilyAccessCodeManager
@@ -52,6 +51,7 @@ import {
 } from "./forms.js";
 
 import {
+    openModal,
     closeModal,
     confirmAction
 } from "./modals.js";
@@ -112,25 +112,6 @@ export function initEvents({
     document.addEventListener("keydown", handleKeydown);
     document.addEventListener("input", handleInput);
 
-    document.getElementById("show-all-dues")
-        ?.addEventListener("click", () => {
-
-            if (isMember()) {
-                denyAccess();
-                return;
-            }
-
-            setCurrentFilter("todas");
-
-            document.querySelectorAll("[data-filter]").forEach(button => {
-                button.classList.toggle(
-                    "active",
-                    button.dataset.filter === "todas"
-                );
-            });
-
-            renderDues();
-        });
 }
 
 
@@ -478,6 +459,87 @@ async function handleClick(event, {
     }
 
 
+    // -----------------------------------------------
+    // INICIAR PAGO COMPLETO
+    // -----------------------------------------------
+
+    if (action === "iniciar-pago-completo") {
+        const dueId = button.dataset.dueId;
+
+        const result = await confirmPayment(dueId);
+
+        handleManagerResult(result);
+
+        return;
+    }
+
+
+    // -----------------------------------------------
+    // INICIAR PAGO PARCIAL
+    // -----------------------------------------------
+
+    if (action === "iniciar-pago-parcial") {
+        const dueId = button.dataset.dueId;
+
+        openModal(`
+            <div class="modal-header">
+                <div>
+                    <h2>Registrar pago parcial</h2>
+                    <p>Introduce el importe total recibido hasta ahora.</p>
+                </div>
+
+                <button
+                    class="modal-close"
+                    type="button"
+                    data-action="cerrar-modal"
+                    aria-label="Cerrar">
+                    ×
+                </button>
+            </div>
+
+            <form id="partial-payment-form" data-due-id="${dueId}">
+
+                <div class="form-group">
+                    <label for="partial-payment-amount">
+                        Total recibido hasta ahora (€)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="partial-payment-amount"
+                        name="amount"
+                        min="0.01"
+                        max="100000"
+                        step="0.01"
+                        inputmode="decimal"
+                        placeholder="0,00"
+                        required>
+                </div>
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        data-action="cerrar-modal">
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="button button-primary">
+                        Registrar ingreso
+                    </button>
+
+                </div>
+
+            </form>
+        `);
+
+        return;
+    }
+
+
     // =================================================
     // FAMILIAS
     // =================================================
@@ -681,32 +743,6 @@ async function handleClick(event, {
 
 
     // =================================================
-    // RESTABLECER DATOS
-    // =================================================
-
-    if (action === "reset-demo") {
-        confirmAction(
-            "Restablecer datos",
-            "Se eliminarán los cambios realizados y se recuperarán los datos de demostración. Esta operación no se puede deshacer.",
-            "Restablecer datos",
-            "confirmar-restablecer"
-        );
-
-        return;
-    }
-
-    if (action === "confirmar-restablecer") {
-        const result = confirmReset();
-
-        handleManagerResult(result, {
-            render: true
-        });
-
-        return;
-    }
-
-
-    // =================================================
     // CONFIRMACIONES
     // =================================================
 
@@ -759,6 +795,15 @@ async function handleClick(event, {
         handleManagerResult(result, {
             render: true
         });
+
+        return;
+    }
+
+    // Completar deuda
+    if (action.startsWith("confirmar-completar-pago:")) {
+        const result = await confirmPayment(action.split(":")[1]);
+
+        handleManagerResult(result);
 
         return;
     }
@@ -849,10 +894,39 @@ async function handleSubmit(event, handleManagerResult) {
         return;
     }
 
+    if (form.id === "partial-payment-form") {
+        event.preventDefault();
+
+        const dueId = form.dataset.dueId;
+        const amount = Number(
+            new FormData(form).get("amount")
+        );
+
+        if (
+            !Number.isFinite(amount) ||
+            amount <= 0 ||
+            amount > 100000
+        ) {
+            showToast("Introduce un importe válido.");
+            return;
+        }
+
+        const amountCents = Math.round(amount * 100);
+
+        const result = await confirmPayment(
+            dueId,
+            amountCents
+        );
+
+        handleManagerResult(result);
+
+        return;
+    }
+
     if (form.id === "edit-due-form") {
         event.preventDefault();
 
-        const result = saveDueForm(form);
+        const result = await saveDueForm(form);
 
         handleManagerResult(result);
 
