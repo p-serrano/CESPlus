@@ -12,8 +12,10 @@ jobs:
     steps:
       - name: Send activity request to Supabase
         run: |
-          curl --fail-with-body --silent --show-error \
-            --write-out "\nHTTP status: %{http_code}\n" \
+          echo "Supabase URL: ${SUPABASE_URL}"
+
+          curl --silent --show-error --include \
+            --max-time 30 \
             --request POST \
             "${SUPABASE_URL}/rest/v1/rpc/keep_alive" \
             --header "apikey: ${SUPABASE_ANON_KEY}" \
