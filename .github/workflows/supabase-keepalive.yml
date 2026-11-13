@@ -12,9 +12,7 @@ jobs:
     steps:
       - name: Send activity request to Supabase
         run: |
-          echo "Supabase URL: ${SUPABASE_URL}"
-
-          curl --silent --show-error --include \
+            curl --fail-with-body --silent --show-error \
             --max-time 30 \
             --request POST \
             "${SUPABASE_URL}/rest/v1/rpc/keep_alive" \
